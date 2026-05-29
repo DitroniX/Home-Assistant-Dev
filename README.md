@@ -13,7 +13,7 @@ If you have a contribution, or example you wish to discuss, please feel free to 
 
 ### How Does It Work?
 
-Using Home Assistant, within ESPHome, you are easily able to create a new 'Device', then flash the board so it will then appear in your Dashboard > Devices.
+Using Home Assistant, with integrated ESPHome, you are easily able to create a new 'Device', then flash the board so it will then appear in your Dashboard > Devices.
 
 Home Assistant (ESPHome), devices use .yaml code, which is initially flashed to the board via USB cable.  
 
