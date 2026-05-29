@@ -19,7 +19,7 @@ Home Assistant (ESPHome), devices use .yaml code, which is initially flashed to 
 
 Once flashed (so the board is 'talking' to Home Assistant'), you can then subsequently easily reflash to the board using OTA, Over-The-Air, via Wi-Fi.  USB re-flashing remains an option if needed.
 
-![Example of New Device](https://github.com/DitroniX/Home-Assistant-Dev/blob/main/Datasheets%20and%20Information/Example%20of%20New%20Device.png)
+![Example of New Device](https://github.com/DitroniX/Home-Assistant-Dev/blob/main/Datasheets%20and%20Information/Example%20of%20Device%20in%20Dash%20and%20Online.png)
 
 ### Home Assistant (ESPHome) Devices
 
@@ -53,6 +53,12 @@ The below is an example of the source pointing to the git repository.
  - [**ATM90E36**](https://github.com/DitroniX/Home-Assistant-Dev/tree/main/components/ATM90E36 "ATM90E36")
 	 - This is the initial development component for use on the [EPEM ATM90E36](https://github.com/DitroniX/EPEM-Ethernet-Power-Energy-Monitor)  Ethernet Power Energy Monitor
 
+
+## Example Guide
+
+An example guide has been put together which should help get your boards up and running!
+
+[Wiki Guide](https://github.com/DitroniX/Home-Assistant-Dev/wiki/Creating-Your-First-Device-in-Home-Assistant-%E2%80%90-ESPHome)
 
 ## Versions
 
