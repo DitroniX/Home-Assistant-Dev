@@ -1,0 +1,214 @@
+esphome:
+  name: epem-atm90e36
+  friendly_name: EPEM E36 House
+
+esp32:
+  board: esp32-c6-devkitc-1
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+font:
+  - file: 'fonts/Arial.ttf'
+    id: font8
+    size: 14
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/DitroniX/Home-Assistant-Dev
+      ref: main
+    refresh: 0s  #optional, how often to download fresh files from source, defaults to 1 day, use 0 to force updates 
+    components: [ ATM90E36 ]
+
+i2c:
+  id: bus_a  
+  sda: GPIO06
+  scl: GPIO07
+  scan: true
+
+display:
+  - platform: ssd1306_i2c
+    id: i2cdisplay
+    model: "SSD1306 128x32"
+    #reset_pin: D0
+    address: 0x3C
+    pages:
+      - id: page1
+        lambda: |-
+          it.printf(0, 0, id(font8), TextAlign::TOP_LEFT, "CT1 ");
+          it.printf(34, 0, id(font8), TextAlign::TOP_LEFT, "%d W", int(id(CT1CURR).state));
+          it.printf(34, 15, id(font8), TextAlign::TOP_LEFT, "%.2f V", id(CT1VOLT).state);
+      - id: page2
+        lambda: |-
+          it.printf(0, 0, id(font8), TextAlign::TOP_LEFT, "CT2 ");
+          it.printf(34, 0, id(font8), TextAlign::TOP_LEFT, "%d W", int(id(CT2CURR).state));
+          it.printf(34, 15, id(font8), TextAlign::TOP_LEFT, "%.2f V", id(CT2VOLT).state);
+      - id: page3
+        lambda: |-
+          it.printf(0, 0, id(font8), TextAlign::TOP_LEFT, "CT3 ");
+          it.printf(34, 0, id(font8), TextAlign::TOP_LEFT, "%d W", int(id(CT3CURR).state));
+          it.printf(34, 15, id(font8), TextAlign::TOP_LEFT, "%.2f V", id(CT3VOLT).state);
+
+spi:
+  clk_pin: GPIO19
+  mosi_pin: GPIO18
+  miso_pin: GPIO20
+
+substitutions:
+  default_gain_voltage: '20200'
+  default_gain_ct: '33500'
+  default_pga_gain: 4X
+  default_interval_time: 1s  
+
+switch:
+# EPEM Outputs  
+  - platform: gpio
+    name: "Red LED"  
+    pin:
+      number: GPIO22 
+      mode: output
+    id: Output_GP22
+    # inverted: false
+
+  # Heatbeat the GPIO LED on GP22
+interval:
+  - interval: 1s
+    then:
+    - switch.toggle: Output_GP22   
+  - interval: 5s
+    then:
+      - display.page.show_next: i2cdisplay
+      - component.update: i2cdisplay
+
+text_sensor:
+  - platform: ATM90E36
+    id: ctclamp
+    phase_status:
+      name: "Phase Status"
+    frequency_status:
+      name: "Frequency Status"
+
+  # TMP102 Temperature Sensor
+sensor:
+  - platform: tmp102
+    name: "TMP102"
+    update_interval: 5s
+    address: 0x4A
+
+  - platform: ATM90E36
+    id: ctclamp
+    cs_pin: GPIO21
+    phase_a:
+      voltage:
+        name: "CT1 Line Voltage"
+        id: CT1VOLT
+      current:
+        name: "CT1 Current"
+      power:
+        name: "CT1 Active Power"
+        id: CT1CURR
+      power_factor:
+        name: "CT1 Power Factor"
+      reactive_power:
+        name: "CT1 Reactive Power"
+      apparent_power: 
+        name: "CT1 Apparent Power"
+      forward_active_energy:
+        name: "CT1 Forward Energy"
+      reverse_active_energy:
+        name: "CT1 Reverse Energy"
+      phase_angle:
+        name: "CT1 Phase Angle"
+      harmonic_power:
+        name: "CT1 Harmonic Power"
+      peak_current:
+        name: "CT1 Peak Current"
+      gain_voltage: ${default_gain_voltage}
+      gain_ct: ${default_gain_ct}
+    phase_b:
+      voltage:
+        name: "CT2 Line Voltage"
+        id: CT2VOLT
+      current:
+        name: "CT2 Current"
+      power:
+        name: "CT2 Active Power"
+        id: CT2CURR
+      power_factor:
+        name: "CT2 Power Factor"
+      reactive_power:
+        name: "CT2 Reactive Power"
+      apparent_power: 
+        name: "CT2 Apparent Power"
+      forward_active_energy:
+        name: "CT2 Forward Energy"
+      reverse_active_energy:
+        name: "CT2 Reverse Energy"
+      phase_angle:
+        name: "CT2 Phase Angle"
+      harmonic_power:
+        name: "CT2 Harmonic Power"
+      peak_current:
+        name: "CT2 Peak Current"
+      gain_voltage: ${default_gain_voltage}
+      gain_ct: ${default_gain_ct}
+    phase_c:
+      voltage:
+        name: "CT3 Line Voltage"
+        id: CT3VOLT
+      current:
+        name: "CT3 Current"
+      power:
+        name: "CT3 Active Power"
+        id: CT3CURR
+      power_factor:
+        name: "CT3 Power Factor"
+      reactive_power:
+        name: "CT3 Reactive Power"
+      apparent_power: 
+        name: "CT3 Apparent Power"
+      forward_active_energy:
+        name: "CT3 Forward Energy"
+      reverse_active_energy:
+        name: "CT3 Reverse Energy"
+      phase_angle:
+        name: "CT3 Phase Angle"
+      harmonic_power:
+        name: "CT3 Harmonic Power"
+      peak_current:
+        name: "CT3 Peak Current"
+      gain_voltage: ${default_gain_voltage}
+      gain_ct: ${default_gain_ct}
+    frequency:
+      name: "IPEM Line Frequency"
+    chip_temperature:
+      name: "IPEM Chip Temperature"
+    line_frequency: 50Hz
+    current_phases: 3
+    gain_current: 4X
+    gain_dpga: 1X
+    gain_voltage: 2X
+    update_interval: ${default_interval_time}
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "xxxxx"
+
+ota:
+  - platform: esphome
+    password: "xxxxx"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "EPEM E36 House Fallback Hotspot"
+    password: "xxxxx"
+
+captive_portal:
