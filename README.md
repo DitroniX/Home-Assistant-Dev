@@ -1,16 +1,63 @@
+
 ## Home Assistant Development and Integration 
 
-This repository is for integration to Home Assistant using the ESPHome Components.
+This repository is for integration of DitroniX boards into Home Assistant using the ESPHome Components.
 
-The development and integration repository is work in progress as various projects evolve.
+The development and integration repository is work in progress as various projects evolve.  It will also expand on route.
+
+#### User contributions
+
+User contributions to the HA integration is welcome and of course, acknowledgements would be included.
+
+If you have a contribution, or example you wish to discuss, please feel free to contact me on support@ditronix.net 
+
+### How Does It Work?
+
+Using Home Assistant, within ESPHome, you are easily able to create a new 'Device', then flash the board so it will then appear in your Dashboard > Devices.
+
+Home Assistant (ESPHome), devices use .yaml code, which is initially flashed to the board via USB cable.  
+
+Once flashed (so the board is 'talking' to Home Assistant'), you can then subsequently easily reflash to the board using OTA, Over-The-Air, via Wi-Fi.  USB re-flashing remains an option if needed.
+
+![Example of New Device](https://github.com/DitroniX/Home-Assistant-Dev/blob/main/Datasheets%20and%20Information/Example%20of%20New%20Device.png)
+
+### Home Assistant (ESPHome) Devices
+
+Home Assistant (ESPHome), uses '[Components](https://developers.home-assistant.io/docs/creating_component_code_review/)', which configures and tells Home Assistant about the device which you are trying to add.
+
+Two 'flavours' of components are available (as far as I am aware):
+ * Internal Components (embedded into HA)
+ * External Components (This is a custom component, not currently embedded into HA)
+
+### DitroniX Component Development
+
+During DitroniX Home Assistant Code Development, the required device 'Component', is simply connected to the DitroniX git repository, as an external component.  
+
+
+You could of course, always 'clone' this component and make your own.
+
+The below is an example of the source pointing to the git repository.
+
+	- source:  
+	type: git  
+	url: [https://github.com/DitroniX/Home-Assistant-Dev]
+	(https://github.com/DitroniX/Home-Assistant-Dev)
+### Example of yaml code pasted in ESPHome
+![Example of yaml code pasted in ESPHome](https://github.com/DitroniX/Home-Assistant-Dev/blob/main/Datasheets%20and%20Information/Example%20of%20code%20pasted%20in%20the%20yaml%20editor.png)
+
+### Example of added Device Info
+![Example of added Device Info](https://github.com/DitroniX/Home-Assistant-Dev/blob/main/Datasheets%20and%20Information/Example%20of%20added%20Device%20Info.png)
 
 ## Home Assistant - ESPHome Components
 
  - [**ATM90E36**](https://github.com/DitroniX/Home-Assistant-Dev/tree/main/components/ATM90E36 "ATM90E36")
-	 - This is for use on the [EPEM ATM90E36](https://github.com/DitroniX/EPEM-Ethernet-Power-Energy-Monitor)  Ethernet Power Energy Monitor
+	 - This is the initial development component for use on the [EPEM ATM90E36](https://github.com/DitroniX/EPEM-Ethernet-Power-Energy-Monitor)  Ethernet Power Energy Monitor
+
 
 ## Versions
 
+
+260529 - Refresh Information
 251217 - Initial upload of the ATM90E36 Component for EPEM E36. Could also be adapted for IPEM E36
 
 
