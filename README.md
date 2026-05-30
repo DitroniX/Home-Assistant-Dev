@@ -51,7 +51,7 @@ The below is an example of the source pointing to the git repository.
 ## Home Assistant - ESPHome Components
 
  - [**ATM90E36**](https://github.com/DitroniX/Home-Assistant-Dev/tree/main/components/ATM90E36 "ATM90E36")
-	 - This is the initial development component for use on the [EPEM ATM90E36](https://github.com/DitroniX/EPEM-Ethernet-Power-Energy-Monitor)  Ethernet Power Energy Monitor
+	 - This is the initial development component for use on boards which use the ATM90E36 device, such as the [EPEM ATM90E36](https://github.com/DitroniX/EPEM-Ethernet-Power-Energy-Monitor)  Ethernet Power Energy Monitor
 
 
 ## Example Guide
@@ -63,8 +63,8 @@ An example guide has been put together which should help get your boards up and 
 ## Versions
 
 
-260529 - Refresh Information
-251217 - Initial upload of the ATM90E36 Component for EPEM E36. Could also be adapted for IPEM E36
+ - 260529 - Refresh Information
+ - 251217 - Initial upload of the ATM90E36 Component for EPEM E36. Could also be adapted for IPEM E36
 
 
 ## **Further Information**
