@@ -5,7 +5,6 @@
 
 [![DitroniX WiKi Pages](https://github.com/DitroniX/Home-Assistant-Dev/blob/main/Datasheets%20and%20Information/GitHub%20WiKi.png?raw=true)](https://github.com/DitroniX/Home-Assistant-Dev/wiki)
 
-
 This repository is for integration of DitroniX boards into Home Assistant using the ESPHome Components.
 
 The development and integration repository is work in progress as various projects evolve.  It will also expand on route.
@@ -15,6 +14,9 @@ The development and integration repository is work in progress as various projec
 User contributions to the HA integration is welcome and of course, acknowledgements would be included.
 
 If you have a contribution, or example you wish to discuss, please feel free to contact me on support@ditronix.net 
+
+[![DitroniX Discussions Pages](https://github.com/DitroniX/DitroniX/blob/main/Files/GitHub%20Discussions.png?raw=true)](https://github.com/DitroniX/Home-Assistant-Dev/discussions)
+
 
 ### How Does It Work?
 
