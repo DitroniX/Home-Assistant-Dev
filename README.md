@@ -1,7 +1,7 @@
 
 ## Home Assistant Development and Integration 
 
-## Welcome to the4 DitroniX Home Asssitant Integration
+## Welcome to the DitroniX Home Asssitant Integration
 
 [![DitroniX WiKi Pages](https://github.com/DitroniX/Home-Assistant-Dev/blob/main/Datasheets%20and%20Information/GitHub%20WiKi.png?raw=true)](https://github.com/DitroniX/Home-Assistant-Dev/wiki)
 
