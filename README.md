@@ -5,6 +5,10 @@ This repository is for integration of DitroniX boards into Home Assistant using 
 
 The development and integration repository is work in progress as various projects evolve.  It will also expand on route.
 
+[![DitroniX Wiki Pages](https://github.com/DitroniX/Home-Assistant-Dev/blob/main/Datasheets%20and%20Information/GitHub%20WiKi.png?raw=true)](https://github.com/DitroniX/Home-Assistant-Dev/wiki)
+
+[![DitroniX Discussions](https://github.com/DitroniX/DitroniX/blob/main/Files/GitHub%20Discussions.png?raw=true)](https://github.com/DitroniX/Home-Assistant-Dev/discussions)
+
 #### User contributions
 
 User contributions to the HA integration is welcome and of course, acknowledgements would be included.

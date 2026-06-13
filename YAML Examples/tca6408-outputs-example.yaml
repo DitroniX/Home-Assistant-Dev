@@ -1,0 +1,121 @@
+esphome:
+  name: tca6408-outputs
+  friendly_name: TCA6408 Outputs
+
+esp32:
+  board: esp32-c5-devkitc-1
+  framework:
+    type: esp-idf
+
+logger:
+  level: DEBUG
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+api:
+ota:
+
+# ====================== I2C & TCA6408 ======================
+i2c:
+  sda: GPIO2     # Adjust pins for your board
+  scl: GPIO3
+  scan: true
+  frequency: 400kHz
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/DitroniX/Home-Assistant-Dev
+      ref: main
+    refresh: 0s  #optional, how often to download fresh files from source, defaults to 1 day, use 0 to force updates 
+    components: [ TCA6408 ]
+
+tca6408:
+  - id: tca6408_hub
+    address: 0x20              # Common default (0x20 - 0x27 depending on ADDR pins) DitroniX boards sometimes use 0x21 as default to avoid conflicts
+    # interrupt_pin: GPIO6     # Optional for outputs only. Interrupt pin is commented out as not needed when using only outputs.
+
+# ====================== OUTPUTS (Switches) ======================
+switch:
+  - platform: gpio
+    name: "TCA6408 Output 0"
+    id: tca_out0
+    pin:
+      tca6408: tca6408_hub
+      number: 0
+      mode: OUTPUT
+      # inverted: false        # Default behavior
+      # inverted: true           # Hardware/software inversion
+      
+  - platform: gpio
+    name: "TCA6408 Output 1 (Relay)"
+    id: tca_out1
+    pin:
+      tca6408: tca6408_hub
+      number: 1
+      mode: OUTPUT
+      # inverted: false        # Default behavior
+      # inverted: true           # Hardware/software inversion
+      
+
+  - platform: gpio
+    name: "TCA6408 Output 2"
+    id: tca_out2
+    pin:
+      tca6408: tca6408_hub
+      number: 2
+      mode: OUTPUT
+      # inverted: false        # Default behavior
+      # inverted: true           # Hardware/software inversion
+
+  - platform: gpio
+    name: "TCA6408 Output 3"
+    id: tca_out3
+    pin:
+      tca6408: tca6408_hub
+      number: 3
+      mode: OUTPUT
+      # inverted: false        # Default behavior
+      # inverted: true           # Hardware/software inversion
+
+  - platform: gpio
+    name: "TCA6408 Output 4"
+    id: tca_out4
+    pin:
+      tca6408: tca6408_hub
+      number: 4
+      mode: OUTPUT
+      # inverted: false        # Default behavior
+      # inverted: true           # Hardware/software inversion
+
+  - platform: gpio
+    name: "TCA6408 Output 5"
+    id: tca_out5
+    pin:
+      tca6408: tca6408_hub
+      number: 5
+      mode: OUTPUT
+      # inverted: false        # Default behavior
+      # inverted: true           # Hardware/software inversion
+
+  - platform: gpio
+    name: "TCA6408 Output 6"
+    id: tca_out6
+    pin:
+      tca6408: tca6408_hub
+      number: 6
+      mode: OUTPUT
+      # inverted: false        # Default behavior
+      # inverted: true           # Hardware/software inversion
+
+  - platform: gpio
+    name: "TCA6408 Output 7"
+    id: tca_out7
+    pin:
+      tca6408: tca6408_hub
+      number: 7
+      mode: OUTPUT
+      # inverted: false        # Default behavior
+      # inverted: true           # Hardware/software inversion
