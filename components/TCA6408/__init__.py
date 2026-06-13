@@ -22,7 +22,7 @@ CONFIG_SCHEMA = (
             # I²C address of the TCA6408 (default 0x20 when ADDR pins are grounded)
             cv.Optional(CONF_ADDRESS, default=0x20): cv.i2c_address,
             
-            # Optional ESP GPIO connected to the TCA6408 INT pin (recommended)
+            # Optional ESP GPIO connected to the TCA6408 INT pin (recommended for fast input response)
             cv.Optional(CONF_INTERRUPT_PIN): gpio.validate_gpio_pin("internal"),
         }
     )
@@ -49,3 +49,55 @@ async def to_code(config):
     if CONF_INTERRUPT_PIN in config:
         pin = await gpio.register_gpio_pin(var, config[CONF_INTERRUPT_PIN])
         cg.add(var.set_interrupt_pin(pin))
+
+
+# ================================================
+# YAML USAGE EXAMPLES (for documentation)
+# ================================================
+
+"""
+# Basic Configuration (Outputs Only)
+tca6408:
+  - id: tca6408_hub
+    address: 0x20
+
+switch:
+  - platform: gpio
+    name: "TCA6408 Output 0"
+    pin:
+      tca6408: tca6408_hub
+      number: 0
+      mode: OUTPUT
+
+
+# Full Configuration with Interrupt (Recommended)
+i2c:
+  sda: GPIO4
+  scl: GPIO5
+  scan: true
+
+tca6408:
+  - id: tca6408_hub
+    address: 0x20
+    interrupt_pin: GPIO6          # Connect to TCA6408 INT pin (with pull-up)
+
+# Outputs
+switch:
+  - platform: gpio
+    name: "Relay 1 (Active Low)"
+    pin:
+      tca6408: tca6408_hub
+      number: 1
+      mode: OUTPUT
+      inverted: true
+
+# Inputs (Binary Sensors)
+binary_sensor:
+  - platform: gpio
+    name: "Door Sensor"
+    pin:
+      tca6408: tca6408_hub
+      number: 3
+      mode: INPUT
+      inverted: true              # Hardware polarity inversion
+"""
