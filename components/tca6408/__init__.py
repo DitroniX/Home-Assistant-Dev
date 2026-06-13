@@ -1,6 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import i2c, gpio, pins
+from esphome.components import i2c
+import esphome.pins as pins
 from esphome.const import CONF_ID, CONF_ADDRESS, CONF_INTERRUPT_PIN
 
 DEPENDENCIES = ["i2c"]
