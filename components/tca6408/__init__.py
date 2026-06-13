@@ -3,37 +3,31 @@ import esphome.config_validation as cv
 from esphome.components import i2c, gpio
 from esphome.const import CONF_ID, CONF_ADDRESS, CONF_INTERRUPT_PIN
 
-# This component depends on the I2C bus
 DEPENDENCIES = ["i2c"]
 
-# Namespace for the C++ component
 tca6408_ns = cg.esphome_ns.namespace("tca6408")
-
-# Reference to the main C++ class
 TCA6408Component = tca6408_ns.class_("TCA6408Component", cg.Component, i2c.I2CDevice)
 
-# Configuration schema for the component
 CONFIG_SCHEMA = (
     cv.Schema(
         {
             cv.GenerateID(): cv.declare_id(TCA6408Component),
-
             cv.Optional(CONF_ADDRESS, default=0x20): cv.i2c_address,
+            cv.Optional(CONF_INTERRUPT_PIN): cv.validate_gpio_pin,
         }
     )
     .extend(cv.COMPONENT_SCHEMA)
-    .extend(i2c.i2c_device_schema(0x20))
+    .extend(i2c.i2c_device_schema(0x20))   # This is correct for new ESPHome
 )
 
 async def to_code(config):
-    """Generate C++ code from the YAML configuration."""
-    
     var = cg.new_Pvariable(config[CONF_ID])
     
     await cg.register_component(var, config)
     await i2c.register_i2c_device(var, config)
 
-    # cg.add(var.set_address(config[CONF_ADDRESS]))
+    if CONF_ADDRESS in config:
+        cg.add(var.set_address(config[CONF_ADDRESS]))
 
     if CONF_INTERRUPT_PIN in config:
         pin = await gpio.register_gpio_pin(var, config[CONF_INTERRUPT_PIN])
