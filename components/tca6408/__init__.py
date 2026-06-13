@@ -17,7 +17,7 @@ CONFIG_SCHEMA = (
         }
     )
     .extend(cv.COMPONENT_SCHEMA)
-    .extend(i2c.i2c_device_schema(0x20))   # This is correct for new ESPHome
+    .extend(i2c.i2c_device_schema(0x20))
 )
 
 async def to_code(config):
@@ -32,55 +32,3 @@ async def to_code(config):
     if CONF_INTERRUPT_PIN in config:
         pin = await gpio.register_gpio_pin(var, config[CONF_INTERRUPT_PIN])
         cg.add(var.set_interrupt_pin(pin))
-
-
-# ================================================
-# YAML USAGE EXAMPLES
-# ================================================
-
-"""
-# Example 1: Basic Outputs Only
-tca6408:
-  - id: tca6408_hub
-    address: 0x20
-
-switch:
-  - platform: gpio
-    name: "TCA6408 Output 0"
-    pin:
-      tca6408: tca6408_hub
-      number: 0
-      mode: OUTPUT
-
-
-# Example 2: Full Configuration with Interrupt (Recommended)
-i2c:
-  sda: GPIO4
-  scl: GPIO5
-  scan: true
-
-tca6408:
-  - id: tca6408_hub
-    address: 0x20
-    interrupt_pin: GPIO6
-
-# Outputs
-switch:
-  - platform: gpio
-    name: "Relay (Active Low)"
-    pin:
-      tca6408: tca6408_hub
-      number: 1
-      mode: OUTPUT
-      inverted: true
-
-# Inputs
-binary_sensor:
-  - platform: gpio
-    name: "Door Sensor"
-    pin:
-      tca6408: tca6408_hub
-      number: 3
-      mode: INPUT
-      inverted: true
-"""
