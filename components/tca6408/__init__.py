@@ -9,7 +9,9 @@ DEPENDENCIES = ["i2c"]
 tca6408_ns = cg.esphome_ns.namespace("tca6408")
 
 TCA6408Component = tca6408_ns.class_(
-    "TCA6408Component", cg.Component, i2c.I2CDevice
+    "TCA6408Component",
+    cg.Component,
+    i2c.I2CDevice
 )
 
 TCA6408GPIOPin = tca6408_ns.class_("TCA6408GPIOPin", cg.GPIOPin)
@@ -18,8 +20,10 @@ CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(TCA6408Component),
         cv.Optional(CONF_ADDRESS, default=0x20): cv.i2c_address,
+        cv.Optional(CONF_INTERRUPT_PIN): gpio.gpio_input_pin_schema,
     }
 ).extend(cv.COMPONENT_SCHEMA)
+
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
@@ -30,19 +34,28 @@ async def to_code(config):
     cg.add(var.set_address(config[CONF_ADDRESS]))
 
     if CONF_INTERRUPT_PIN in config:
-        pin = await gpio.register_gpio_pin(var, config[CONF_INTERRUPT_PIN])
+        pin = await gpio.register_gpio_pin(config[CONF_INTERRUPT_PIN])
         cg.add(var.set_interrupt_pin(pin))
 
 
-# ===== PIN REGISTRATION =====
+# =========================
+# PIN PROVIDER (IMPORTANT)
+# =========================
 
-TCA6408_PIN_SCHEMA = gpio.gpio_base_schema(TCA6408GPIOPin).extend(
+TCA6408_PIN_SCHEMA = gpio.BASE_PIN_SCHEMA.extend(
     {
+        cv.GenerateID(): cv.use_id(TCA6408Component),
         cv.Required("number"): cv.int_range(min=0, max=7),
     }
 )
 
+
 @pins.PIN_SCHEMA_REGISTRY.register("tca6408", TCA6408_PIN_SCHEMA)
 async def tca6408_pin_to_code(config):
+    parent = await cg.get_variable(config[CONF_ID])
+
     var = cg.new_Pvariable(config["number"])
-    yield var
+    cg.add(var.set_parent(parent))
+    cg.add(var.set_pin(config["number"]))
+
+    return var
