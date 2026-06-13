@@ -1,6 +1,10 @@
 
 ## Home Assistant Development and Integration 
 
+#### Welcome to the DitroniX Home Asssitant Integration
+
+[![DitroniX WiKi Pages](https://github.com/DitroniX/Home-Assistant-Dev/blob/main/Datasheets%20and%20Information/GitHub%20WiKi.png?raw=true)](https://github.com/DitroniX/Home-Assistant-Dev/wiki)
+
 This repository is for integration of DitroniX boards into Home Assistant using the ESPHome Components.
 
 The development and integration repository is work in progress as various projects evolve.  It will also expand on route.
@@ -15,6 +19,9 @@ User contributions to the HA integration is welcome and of course, acknowledgeme
 
 If you have a contribution, or example you wish to discuss, please feel free to contact me on support@ditronix.net 
 
+[![DitroniX Discussions Pages](https://github.com/DitroniX/DitroniX/blob/main/Files/GitHub%20Discussions.png?raw=true)](https://github.com/DitroniX/Home-Assistant-Dev/discussions)
+
+
 ### How Does It Work?
 
 Using Home Assistant, with integrated ESPHome, you are easily able to create a new 'Device', then flash the board so it will then appear in your Dashboard > Devices.
@@ -23,7 +30,7 @@ Home Assistant (ESPHome), devices use .yaml code, which is initially flashed to 
 
 Once flashed (so the board is 'talking' to Home Assistant'), you can then subsequently easily reflash to the board using OTA, Over-The-Air, via Wi-Fi.  USB re-flashing remains an option if needed.
 
-![Example of New Device](https://github.com/DitroniX/Home-Assistant-Dev/blob/main/Datasheets%20and%20Information/Example%20of%20New%20Device.png)
+![Example of New Device](https://github.com/DitroniX/Home-Assistant-Dev/blob/main/Datasheets%20and%20Information/Example%20of%20Device%20in%20Dash%20and%20Online.png)
 
 ### Home Assistant (ESPHome) Devices
 
@@ -55,14 +62,20 @@ The below is an example of the source pointing to the git repository.
 ## Home Assistant - ESPHome Components
 
  - [**ATM90E36**](https://github.com/DitroniX/Home-Assistant-Dev/tree/main/components/ATM90E36 "ATM90E36")
-	 - This is the initial development component for use on the [EPEM ATM90E36](https://github.com/DitroniX/EPEM-Ethernet-Power-Energy-Monitor)  Ethernet Power Energy Monitor
+	 - This is the initial development component for use on boards which use the ATM90E36 device, such as the [EPEM ATM90E36](https://github.com/DitroniX/EPEM-Ethernet-Power-Energy-Monitor)  Ethernet Power Energy Monitor
 
+
+## Example Guide
+
+An example guide has been put together which should help get your boards up and running!
+
+[Wiki Guide](https://github.com/DitroniX/Home-Assistant-Dev/wiki/Creating-Your-First-Device-in-Home-Assistant-%E2%80%90-ESPHome)
 
 ## Versions
 
 
-260529 - Refresh Information
-251217 - Initial upload of the ATM90E36 Component for EPEM E36. Could also be adapted for IPEM E36
+ - 260529 - Refresh Information
+ - 251217 - Initial upload of the ATM90E36 Component for EPEM E36. Could also be adapted for IPEM E36
 
 
 ## **Further Information**
