@@ -20,10 +20,8 @@ CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(TCA6408Component),
         cv.Optional(CONF_ADDRESS, default=0x20): cv.i2c_address,
-        cv.Optional(CONF_INTERRUPT_PIN): gpio.gpio_input_pin_schema,
     }
 ).extend(cv.COMPONENT_SCHEMA)
-
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
