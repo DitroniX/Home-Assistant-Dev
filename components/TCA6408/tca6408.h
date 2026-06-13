@@ -33,10 +33,13 @@ class TCA6408Component : public Component,
   uint8_t mode_mask_{0xFF};      // 1 = input, 0 = output
   uint8_t output_mask_{0x00};
   uint8_t input_mask_{0x00};
-  uint8_t polarity_mask_{0x00};  // 1 = inverted
+  uint8_t polarity_mask_{0x00};  // 1 = inverted (for inputs)
 
   InternalGPIOPin *interrupt_pin_{nullptr};
   bool interrupt_triggered_{false};
+
+ private:
+  bool read_gpio_outputs_();
 };
 
 class TCA6408GPIOPin : public gpio::GPIOPin, public Parented<TCA6408Component> {
