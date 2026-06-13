@@ -13,9 +13,7 @@ CONFIG_SCHEMA = (
         {
             cv.GenerateID(): cv.declare_id(TCA6408Component),
             cv.Optional(CONF_ADDRESS, default=0x20): cv.i2c_address,
-            cv.Optional(CONF_INTERRUPT_PIN): cv.All(
-                gpio.validate_gpio_pin("internal"),
-            ),
+            cv.Optional(CONF_INTERRUPT_PIN): gpio.validate_gpio_pin("internal"),
         }
     )
     .extend(cv.COMPONENT_SCHEMA)
