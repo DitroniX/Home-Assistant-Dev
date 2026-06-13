@@ -23,7 +23,7 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_ADDRESS, default=0x20): cv.i2c_address,
             
             # Optional ESP GPIO connected to the TCA6408 INT pin (recommended)
-            cv.Optional(CONF_INTERRUPT_PIN): gpio.validate_gpio_pin("internal"),
+            # cv.Optional(CONF_INTERRUPT_PIN): gpio.validate_gpio_pin("internal"),
         }
     )
     .extend(cv.COMPONENT_SCHEMA)
