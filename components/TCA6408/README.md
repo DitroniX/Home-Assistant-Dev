@@ -1,6 +1,8 @@
 # TCA6408 ESPHome Component
 
-Full-featured custom component for the **TCA6408** 8-bit I²C I/O Expander.
+Full-featured custom component for the **TCA6408** 8-bit IÂ²C I/O Expander.
+
+**This is work in progress and under test**
 
 ## Features
 
@@ -11,7 +13,7 @@ Full-featured custom component for the **TCA6408** 8-bit I²C I/O Expander.
 - Polling fallback mode
 - Compatible with ESP32 (including C3/C5/C6), ESP8266, etc.
 
-The INT pin on TCA6408 is open-drain active-low — connect a pull-up resistor (or use internal pull-up on ESP).
+The INT pin on TCA6408 is open-drain active-low â€” connect a pull-up resistor (or use internal pull-up on ESP).
 
 ## Installation
 
@@ -34,7 +36,7 @@ The INT pin on TCA6408 is open-drain active-low — connect a pull-up resistor (or
 
 	tca6408:
 	  - id: tca6408_hub
-	    address: 0x20                    # Default: 0x20 (0x20–0x27 depending on ADDR pins)
+	    address: 0x20                    # Default: 0x20 (0x20â€“0x27 depending on ADDR pins)
 	    interrupt_pin: GPIO6             # Recommended for fast input response
 
 ## Example: Outputs (Switches)
