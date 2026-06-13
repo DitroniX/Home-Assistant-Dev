@@ -16,18 +16,13 @@ TCA6408Component = tca6408_ns.class_("TCA6408Component", cg.Component, i2c.I2CDe
 CONFIG_SCHEMA = (
     cv.Schema(
         {
-            # Unique ID for this component instance
             cv.GenerateID(): cv.declare_id(TCA6408Component),
-            
-            # I²C address of the TCA6408 (default 0x20 when ADDR pins are grounded)
+
             cv.Optional(CONF_ADDRESS, default=0x20): cv.i2c_address,
-            
-            # Optional ESP GPIO connected to the TCA6408 INT pin (recommended)
-            # cv.Optional(CONF_INTERRUPT_PIN): gpio.validate_gpio_pin("internal"),
         }
     )
     .extend(cv.COMPONENT_SCHEMA)
-    .extend(i2c.i2c_device_schema())
+    .extend(i2c.i2c_device_schema(0x20))
 )
 
 async def to_code(config):
@@ -38,7 +33,7 @@ async def to_code(config):
     await cg.register_component(var, config)
     await i2c.register_i2c_device(var, config)
 
-    cg.add(var.set_address(config[CONF_ADDRESS]))
+    # cg.add(var.set_address(config[CONF_ADDRESS]))
 
     if CONF_INTERRUPT_PIN in config:
         pin = await gpio.register_gpio_pin(var, config[CONF_INTERRUPT_PIN])
