@@ -1,6 +1,6 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import i2c, gpio
+from esphome.components import i2c, gpio, pins
 from esphome.const import CONF_ID, CONF_ADDRESS, CONF_INTERRUPT_PIN
 
 DEPENDENCIES = ["i2c"]
@@ -13,7 +13,7 @@ CONFIG_SCHEMA = (
         {
             cv.GenerateID(): cv.declare_id(TCA6408Component),
             cv.Optional(CONF_ADDRESS, default=0x20): cv.i2c_address,
-            cv.Optional(CONF_INTERRUPT_PIN): cv.validate_gpio_pin,
+            cv.Optional(CONF_INTERRUPT_PIN): pins.gpio_input_pin_schema,   # ← Fixed
         }
     )
     .extend(cv.COMPONENT_SCHEMA)
@@ -32,3 +32,4 @@ async def to_code(config):
     if CONF_INTERRUPT_PIN in config:
         pin = await gpio.register_gpio_pin(var, config[CONF_INTERRUPT_PIN])
         cg.add(var.set_interrupt_pin(pin))
+
