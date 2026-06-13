@@ -30,7 +30,7 @@ external_components:
       url: https://github.com/DitroniX/Home-Assistant-Dev
       ref: main
     refresh: 0s  #optional, how often to download fresh files from source, defaults to 1 day, use 0 to force updates 
-    components: [ TCA6408 ]
+    components: [ tca6408 ]
 
 tca6408:
   - id: tca6408_hub
