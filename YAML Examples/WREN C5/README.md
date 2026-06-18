@@ -333,6 +333,16 @@ The firmware implements several safety mechanisms:
 
 #### Immediate Motor Shutdown
 
+The following safety motor shutdown has been included in hardware.
+
+-	Over current protection
+	-   Either motor port become overloaded
+-   Cross Conduction of control wiring
+-   Thermal Shutdown
+-   Under/Over Voltage
+
+These events trigger the ENx line to force low.  If the either motor is running at the time, this will immediately force a fault.
+
 Any detected fault immediately writes:
 
 Output Register = 0x00
@@ -351,44 +361,29 @@ This disables:
 
 Once a fault occurs:
 
-fault_active = true
+-   fault_active = true
 
-Motor outputs remain disabled until restart.
+-   Motor outputs remain disabled until restart.
 
 #### Automatic Recovery
 
 After fault indication:
 
-esp_restart()
+-   esp_restart()
 
-is executed to restore the system to a known state.
+-   is executed to restore the system to a known state.
 
 
 ## Timing Parameters
 
-Function
-
-Interval
-
-Heartbeat LED
-
-1 second
-
-Motor Supervisor
-
-10 ms
-
-Voltage Update
-
-1 second
-
-TMP102 Update
-
-10 seconds
-
-Wi-Fi RSSI
-
-60 seconds
+| Function|Interval|
+|--|--|
+|Heartbeat LED | 1 second|
+|Motor Supervisor|10 ms|
+|ADC Voltage Update|30 seconds|
+|Motor|1 second|
+|TMP102 Update|30 seconds|
+|Wi-Fi RSSI|60 seconds|
 
 ## Summary
 
