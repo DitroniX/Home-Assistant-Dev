@@ -87,41 +87,17 @@ The TCA6408A provides eight output signals.
 
 #### Output Mapping
 
-Bit	
+| Bit	|Function|
+|--|--|
+| P0|  EN1|
+| P1|  Motor 1 Extend|
+| P2|  Motor 1 Retract|
+| P3|  EN2|
+| P4|  Motor 2 Extend|
+| P5|  Motor 2 Retract|
+| P6|  Spare|
+|P7|  Status / Fault LED|
 
-Function
-
-P0
-
-EN1
-
-P1
-
-Motor 1 Extend
-
-P2
-
-Motor 1 Retract
-
-P3
-
-EN2
-
-P4
-
-Motor 2 Extend
-
-P5
-
-Motor 2 Retract
-
-P6
-
-Spare
-
-P7
-
-Status / Fault LED
 
 The firmware configures all TCA6408A pins as outputs during boot.
 
