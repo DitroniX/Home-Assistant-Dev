@@ -75,15 +75,10 @@ The firmware performs:
 The ESP32-C5 is the main controller and performs:
 
 -   Input monitoring
-    
 -   Motor control logic
-    
 -   Fault detection
-    
 -   I²C communications
-    
 -   Sensor monitoring
-    
 -   ESPHome integration
 
 ### TCA6408A I/O Expander (I²C Address 0x21)
@@ -92,7 +87,7 @@ The TCA6408A provides eight output signals.
 
 #### Output Mapping
 
-Bit
+Bit	
 
 Function
 
@@ -132,35 +127,21 @@ The firmware configures all TCA6408A pins as outputs during boot.
 
 ## Motor Control Logic
 
-###Motor Inputs
+### Motor Inputs
 
 #### Motor 1
 
-GPIO
-
-Function
-
-GPIO8
-
-Motor 1 Extend
-
-GPIO9
-
-Motor 1 Retract
+| GPIO |Function  |
+|--|--|
+| GPIO8 |  Motor 1 Extend|
+| GPIO9 |  Motor 1 Retract|
 
 #### Motor 2
 
-GPIO
-
-Function
-
-GPIO14
-
-Motor 2 Extend
-
-GPIO13
-
-Motor 2 Retract
+| GPIO |Function  |
+|--|--|
+| GPIO14|  Motor 2 Extend|
+| GPIO13|  Motor 2 Retract|
 
 ### Enable Logic
 
@@ -168,47 +149,30 @@ The motor driver enable signals are always controlled together.
 
 When any motor command is active:
 
-EN1 = HIGH
-
-EN2 = HIGH
+ - EN1 = HIGH
+ - EN2 = HIGH
 
 When no motor command is active:
 
-EN1 = LOW
-
-EN2 = LOW
+ - EN1 = LOW
+ - EN2 = LOW
 
 This ensures both motor driver channels are enabled and disabled simultaneously.
 
 ### Direction Control
 
 #### Motor 1
-
-Input
-
-Output
-
-IN_1A
-
-Extend
-
-IN_1B
-
-Retract
+| Input |Output|
+|--|--|
+| IN_1A|  Motor 1 Extend|
+| IN_1B|  Motor 1 Retract|
 
 #### Motor 2
 
-Input
-
-Output
-
-IN_2A
-
-Extend
-
-IN_2B
-
-Retract
+| Input |Output|
+|--|--|
+| IN_2A|  Motor 1 Extend|
+| IN_2B|  Motor 1 Retract|
 
 Outputs are updated continuously by the motor supervisor task.
 
@@ -260,17 +224,11 @@ GPIO4
 
 #### Limits
 
-Condition
+| Condition|Action|
+|--|--|
+| Fault|  <10 V or >48 V|
 
-Action
-
-<10 V
-
-Fault
-
->48 V
-
-Fault
+**Fault**
 
 On fault:
 
@@ -284,7 +242,7 @@ On fault:
 
 ### TCA6408A LED
 
-Bit 7 of the TCA6408A is used as the fault indicator.
+Bit 7 of the TCA6408A is used as the fault LED indicator.
 
 #### Normal Operation
 
