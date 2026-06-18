@@ -71,6 +71,7 @@ An example guide has been put together which should help get your boards up and 
 ## Versions
 
 
+ - 260618 - Added WREN Integration for ESPHome 
  - 260613 - Added TCA6408 for Dev Testing
  - 260529 - Refresh Information
  - 251217 - Initial upload of the ATM90E36 Component for EPEM E36. Could also be adapted for IPEM E36
