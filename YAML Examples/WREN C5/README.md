@@ -4,6 +4,8 @@
 
 This is a working development code for WREN, within Home Assistant.
 
+![WREN C5 in ESPHome](https://github.com/DitroniX/Home-Assistant-Dev/blob/main/YAML%20Examples/WREN%20C5/wren-c5-esphome.png)
+
 ### **Code Development**
 
 Being primarily a hardware engineer and not understanding YAML, I have enlisted some help.
@@ -46,7 +48,7 @@ The code should work as it is but you will ideally need to update the footer ESP
 
 ### Purpose
 
-This firmware runs on the ESP32-C5 and provides control and monitoring for a dual-motor actuator system using a TCA6408A I²C GPIO expander and motor driver circuitry.
+This firmware runs on the ESP32-C5 and provides control and monitoring for a dual-motor actuator system using a TCA6408A IÂ²C GPIO expander and motor driver circuitry.
 
 The firmware performs:
 
@@ -78,13 +80,13 @@ The ESP32-C5 is the main controller and performs:
     
 -   Fault detection
     
--   I²C communications
+-   IÂ²C communications
     
 -   Sensor monitoring
     
 -   ESPHome integration
 
-### TCA6408A I/O Expander (I²C Address 0x21)
+### TCA6408A I/O Expander (IÂ²C Address 0x21)
 
 The TCA6408A provides eight output signals.
 
@@ -326,7 +328,7 @@ Recommended pattern:
 
 ### TMP102 Temperature Sensor
 
-I²C Address: 0x4A
+IÂ²C Address: 0x4A
 
 Provides:
 
@@ -474,7 +476,7 @@ The WREN-C5 firmware provides a robust dual-motor control platform with:
     
 -   ESPHome integration
     
--   I²C-based output expansion
+-   IÂ²C-based output expansion
     
 
 The design prioritizes safe motor shutdown and automatic recovery while maintaining simple integration with Home Assistant and ESPHome.
