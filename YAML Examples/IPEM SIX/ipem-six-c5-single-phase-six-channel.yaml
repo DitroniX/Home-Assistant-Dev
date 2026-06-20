@@ -24,8 +24,9 @@
 # * github.com/DitroniX/IPEM-SIX-ESP32C5-ATM90E32-IoT-Mains-Power-Energy-Monitor/wiki
 # * hackster.io/DitroniX/ipem-six-esp32c5-atm90e32-iot-mains-power-energy-monitor-e323bd
 
-# This YAML code has been created to show the features and functionality of IPEM SIX.
+# This YAML code has been created to show the features and functionality of IPEM SIX.  This code has expanded to become an all encompassing ESPHome applicaition.
 # IPEM SIX C5 is a professional 6-channel dual-bank energy monitoring device based on the ESP32-C5 platform and dual ATM90E32 energy measurement ICs.
+# Initial code is for single phase and six current clamps.  Multi-phase and Rogorski Coil integrations to flow.
 
 esphome:
   name: ipem-six-c5
@@ -55,8 +56,23 @@ substitutions:
 
   # ======================== MAINS CONFIG ===========================
   line_frequency: "50Hz" # Change to "60Hz" for US/Canada/etc.
-  nominal_voltage: "230" # For status thresholds and comments
-  # ===============================================================
+  line_voltage: "230V" # For status thresholds and comments
+
+  # line_frequency: "60Hz" # Change to "60Hz" for US/Canada/etc.
+  # line_voltage: "110" # For status thresholds and comments
+  # ===============================================================  
+
+  # ======================== BOARD CONFIG ===========================
+  Phases: 1 # Baseline of this version of firmware.  For later use.
+  Current_Inputs: 6 # Baseline of this version of firmware.  For later use.  
+  Current_Type: "CT" # Baseline of this version of firmware.  For later use.  CT / Rogowski
+    # ===============================================================  
+  
+  # ==================== ATM90E32 Registers ========================
+  gain_voltage_baseline: 38300 # Baseline for 240V 38300
+  gain_current_baseline: 64800 # Baseline for CT
+  gain_pga_baseline: 2X # Baseline for CT
+  # ===============================================================  
 
   project:
     name: "ditronix.ipem_six"
@@ -250,6 +266,66 @@ text_sensor:
     lambda: |-
       return {"${board_rev}"};
 
+  - platform: template
+    name: "Line Voltage Setting"
+    entity_category: diagnostic
+    lambda: |-
+      return {"${line_voltage}"};
+
+  - platform: template
+    name: "Line Frequency Setting"
+    entity_category: diagnostic
+    lambda: |-
+      return {"${line_frequency}"};      
+
+  - platform: template
+    name: "Gain Voltage"
+    entity_category: diagnostic
+    lambda: |-
+      return {"${gain_voltage_baseline}"};   
+
+  - platform: template
+    name: "Gain Current"
+    entity_category: diagnostic
+    lambda: |-
+      return {"${gain_current_baseline}"};         
+
+  - platform: template
+    name: "Gain PGA"
+    entity_category: diagnostic
+    lambda: |-
+      return {"${gain_pga_baseline}"};            
+
+  - platform: template
+    name: "Phases"
+    icon: mdi:current-ac
+    entity_category: diagnostic
+    update_interval: 60s
+
+    lambda: |-
+      std::string config = "${phases_config}";
+
+      if (config == "1") {
+        return {"Single"};
+      } else if (config == "2") {
+        return {"Split"};
+      } else if (config == "3") {
+        return {"3-Phase"};
+      }
+      return {"Unknown"};        
+
+  - platform: template
+    name: "Current Inputs"
+    entity_category: diagnostic
+    lambda: |-
+      return {"${Current_Inputs}"};         
+
+  - platform: template
+    name: "Current Type"
+    entity_category: diagnostic
+    lambda: |-
+      return {"${Current_Type}"};                    
+
   # =====================================================
   # IPEM SIX CHANNEL METADATA
   # =====================================================
@@ -375,28 +451,34 @@ text_sensor:
   # VOLTAGE INFORMATION
   # =====================================================
 
-  # Mains Voltage range in the UK.
+  # Example Mains Voltage range in the UK.
   # 230V -6% / +10%
   # Low    < 216V
   # Normal 216V - 253V
   # High   > 253V
 
   - platform: template
-
     name: "IPEM SIX Voltage Status"
-    icon: mdi:sine-wave
+    icon: mdi:flash
+    update_interval: 10s
 
     lambda: |-
+      float volt = id(mains_voltage).state; 
+      if (volt <= 10.0) return {"No Signal"};
 
-      if (id(mains_voltage).state < 216.0)
-        return {"Low"};
+      std::string nom = "${nominal_voltage}"; 
 
-      if (id(mains_voltage).state > 253.0)
-        return {"High"};
-
+      if (nom == "230V") {
+        if (volt < 200.0) return {"Low"};
+        if (volt > 260.0) return {"High"};
+        if (volt < 210.0 || volt > 250.0) return {"Warning"};
+      } 
+      else if (nom == "120V") {
+        if (volt < 100.0) return {"Low"};
+        if (volt > 135.0) return {"High"};
+        if (volt < 108.0 || volt > 127.0) return {"Warning"};
+      }
       return {"Normal"};
-
-    update_interval: 10s
 
   # =====================================================
   # FREQUENCY INFORMATION
@@ -553,7 +635,7 @@ sensor:
     id: bank_a
 
     cs_pin: GPIO6
-    gain_pga: 2X
+    gain_pga: ${gain_pga_baseline}
     line_frequency: ${line_frequency}
 
     phase_a:
@@ -575,8 +657,8 @@ sensor:
       power_factor:
         name: "Bank A 1 Power Factor"
 
-      gain_voltage: 38300
-      gain_ct: 64800
+      gain_voltage: ${gain_voltage_baseline}
+      gain_ct: ${gain_current_baseline}
 
     phase_b:
       current:
@@ -587,8 +669,8 @@ sensor:
         name: "Bank A 2 Power"
         id: bank_a_2_power
 
-      gain_voltage: 38300
-      gain_ct: 64800
+      gain_voltage: ${gain_voltage_baseline}
+      gain_ct: ${gain_current_baseline}
 
     phase_c:
       current:
@@ -599,8 +681,8 @@ sensor:
         name: "Bank A 3 Power"
         id: bank_a_3_power
 
-      gain_voltage: 38300
-      gain_ct: 64800
+      gain_voltage: ${gain_voltage_baseline}
+      gain_ct: ${gain_current_baseline}
 
     frequency:
       name: "IPEM SIX Frequency"
@@ -621,7 +703,7 @@ sensor:
     id: bank_b
 
     cs_pin: GPIO7
-    gain_pga: 2X
+    gain_pga: ${gain_pga_baseline}
     line_frequency: ${line_frequency}
 
     phase_a:
@@ -633,8 +715,8 @@ sensor:
         name: "Bank B 1 Power"
         id: bank_b_1_power
 
-      gain_voltage: 38300
-      gain_ct: 64800
+      gain_voltage: ${gain_voltage_baseline}
+      gain_ct: ${gain_current_baseline}
 
     phase_b:
       current:
@@ -645,8 +727,8 @@ sensor:
         name: "Bank B 2 Power"
         id: bank_b_2_power
 
-      gain_voltage: 38300
-      gain_ct: 64800
+      gain_voltage: ${gain_voltage_baseline}
+      gain_ct: ${gain_current_baseline}
 
     phase_c:
       current:
@@ -657,8 +739,8 @@ sensor:
         name: "Bank B 3 Power"
         id: bank_b_3_power
 
-      gain_voltage: 38300
-      gain_ct: 64800
+      gain_voltage: ${gain_voltage_baseline}
+      gain_ct: ${gain_current_baseline}
 
     chip_temperature:
       name: "Bank B Temperature"
