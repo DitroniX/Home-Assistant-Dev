@@ -47,11 +47,16 @@ esp32:
 
 substitutions:
   author: "DitroniX - Dave Williams"
-  firmware_version: "1.00.00"
+  firmware_version: "1.00.01"
   release_date: "2026-06-20"
-  board_name: "IPEM Plus"
+  board_name: "IPEM SIX"
   board_mcu: "ESP32-C5"
   board_rev: "1.2606.102"
+
+  # ======================== MAINS CONFIG ===========================
+  line_frequency: "50Hz" # Change to "60Hz" for US/Canada/etc.
+  nominal_voltage: "230" # For status thresholds and comments
+  # ===============================================================
 
   project:
     name: "ditronix.ipem_six"
@@ -416,24 +421,24 @@ text_sensor:
   # High    >51 Hz
 
   - platform: template
-
     name: "IPEM SIX Frequency Status"
     icon: mdi:waves-arrow-right
-
-    lambda: |-
-
-      if (id(mains_frequency).state < 49.0)
-        return {"Low"};
-
-      if (id(mains_frequency).state > 51.0)
-        return {"High"};
-
-      return {"Normal"};
-
     update_interval: 10s
 
-  - platform: template
+    lambda: |-
+      float freq = id(mains_frequency).state;
+      if (freq <= 0.0) return {"No Signal"};
 
+      if ("${line_frequency}" == "50Hz") {
+        if (freq < 49.0) return {"Low"};
+        if (freq > 51.0) return {"High"};
+      } else if ("${line_frequency}" == "60Hz") {
+        if (freq < 59.0) return {"Low"};
+        if (freq > 61.0) return {"High"};
+      }
+      return {"Normal"};
+
+  - platform: template
     name: "IPEM SIX Meter Type"
 
     lambda: |-
@@ -549,7 +554,7 @@ sensor:
 
     cs_pin: GPIO6
     gain_pga: 2X
-    line_frequency: 50Hz
+    line_frequency: ${line_frequency}
 
     phase_a:
       voltage:
@@ -617,7 +622,7 @@ sensor:
 
     cs_pin: GPIO7
     gain_pga: 2X
-    line_frequency: 50Hz
+    line_frequency: ${line_frequency}
 
     phase_a:
       current:
