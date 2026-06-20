@@ -23,6 +23,10 @@ IPEM SIX C5 provides a complete energy monitoring platform:
 
 Designed as a professional-grade residential and small commercial energy monitoring solution.
 
+## Snippet of the ESPHome Dash
+
+![IPEM SIX ESPHome Preview](https://github.com/DitroniX/Home-Assistant-Dev/blob/main/YAML%20Examples/IPEM%20SIX/ipem-six-c5-single-phase-six-channel.png)
+
 ## **Code Overview**
 
 **IPEM SIX C5** is a professional 6-channel dual-bank energy monitoring device based on the **ESP32-C5** platform and dual **ATM90E32** energy measurement ICs.
