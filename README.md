@@ -18,6 +18,8 @@ If you have a contribution, or example you wish to discuss, please feel free to 
 
 [![DitroniX Discussions Pages](https://github.com/DitroniX/DitroniX/blob/main/Files/GitHub%20Discussions.png?raw=true)](https://github.com/DitroniX/Home-Assistant-Dev/discussions)
 
+[![STEM Buy Me A Coffee - Thank you!](https://github.com/DitroniX/DitroniX/blob/main/Files/BuyMeACoffee.png?raw=true)](https://buymeacoffee.com/ditronix)
+
 
 ### How Does It Work?
 
