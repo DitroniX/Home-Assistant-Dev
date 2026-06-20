@@ -31,13 +31,17 @@ Designed as a professional-grade residential and small commercial energy monitor
 
 Now the code has been released and tested as a single phase with up to six inputs, other features and variants will also be provided.
 
-To complete the IPEM SIX ESPHome functionality:
+IPEM SIX ESPHome functionality Wish List:
+
+✅ TMP102 Board Ambient Temperature
 * RS485 MODBUS
 * GPIO Control (GPI/PWM)
 * OPTO Isolator Output Control
 * OLED Support (Display Panel)
 
-Three branches will then follow:
+Integrated Options:
+
+✅ Single Phase
 * Split Phase
 * Two Phase, over the Two Banks
 * Three Phase
