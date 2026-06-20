@@ -48,7 +48,7 @@ esp32:
 
 substitutions:
   author: "DitroniX - Dave Williams"
-  firmware_version: "1.00.01"
+  firmware_version: "1.00.02"
   release_date: "2026-06-20"
   board_name: "IPEM SIX"
   board_mcu: "ESP32-C5"
@@ -60,19 +60,25 @@ substitutions:
 
   # line_frequency: "60Hz" # Change to "60Hz" for US/Canada/etc.
   # line_voltage: "110" # For status thresholds and comments
-  # ===============================================================  
+  # ===============================================================
 
   # ======================== BOARD CONFIG ===========================
-  Phases: 1 # Baseline of this version of firmware.  For later use.
-  Current_Inputs: 6 # Baseline of this version of firmware.  For later use.  
-  Current_Type: "CT" # Baseline of this version of firmware.  For later use.  CT / Rogowski
-    # ===============================================================  
-  
+  phases_inputs: 1 # Baseline of this version of firmware.  For later use.
+  current_inputs: 6 # Baseline of this version of firmware.  For later use.
+  current_type:
+    "CT" # Baseline of this version of firmware.  For later use.  CT / Rogowski
+    # ===============================================================
+
   # ==================== ATM90E32 Registers ========================
   gain_voltage_baseline: 38300 # Baseline for 240V 38300
   gain_current_baseline: 64800 # Baseline for CT
   gain_pga_baseline: 2X # Baseline for CT
-  # ===============================================================  
+  # ===============================================================
+
+  # ========================= MISC ================================
+  tmp102_name: "Board Temperature"
+  tmp102_update_interval: 30s
+  # ===============================================================
 
   project:
     name: "ditronix.ipem_six"
@@ -112,6 +118,7 @@ spi:
 # =====================================================
 
 i2c:
+  id: i2c_bus
   sda: GPIO2
   scl: GPIO3
   frequency: 400kHz
@@ -193,6 +200,7 @@ light:
             if(step > 20)
               step = 0;
 
+################################## NUMBER ##################################
 # =====================================================
 # USER ADJUSTMENTS
 # =====================================================
@@ -224,6 +232,8 @@ number:
     optimistic: true
     restore_value: true
     initial_value: 10
+
+################################## TEXT SENSOR ##################################
 
 text_sensor:
   # =====================================================
@@ -258,7 +268,7 @@ text_sensor:
     name: "Board MCU"
     entity_category: diagnostic
     lambda: |-
-      return {"${variant}"};
+      return {"${board_mcu}"};
 
   - platform: template
     name: "Board Build"
@@ -276,25 +286,25 @@ text_sensor:
     name: "Line Frequency Setting"
     entity_category: diagnostic
     lambda: |-
-      return {"${line_frequency}"};      
+      return {"${line_frequency}"};
 
   - platform: template
     name: "Gain Voltage"
     entity_category: diagnostic
     lambda: |-
-      return {"${gain_voltage_baseline}"};   
+      return {"${gain_voltage_baseline}"};
 
   - platform: template
     name: "Gain Current"
     entity_category: diagnostic
     lambda: |-
-      return {"${gain_current_baseline}"};         
+      return {"${gain_current_baseline}"};
 
   - platform: template
     name: "Gain PGA"
     entity_category: diagnostic
     lambda: |-
-      return {"${gain_pga_baseline}"};            
+      return {"${gain_pga_baseline}"};
 
   - platform: template
     name: "Phases"
@@ -303,28 +313,28 @@ text_sensor:
     update_interval: 60s
 
     lambda: |-
-      std::string config = "${phases_config}";
+      std::string config = "${phases_inputs}";
 
       if (config == "1") {
         return {"Single"};
       } else if (config == "2") {
-        return {"Split"};
+        return {"Split/Dual (1+3)"};
       } else if (config == "3") {
-        return {"3-Phase"};
+        return {"3-Phase (3)"};
       }
-      return {"Unknown"};        
+      return {"Unknown"};
 
   - platform: template
     name: "Current Inputs"
     entity_category: diagnostic
     lambda: |-
-      return {"${Current_Inputs}"};         
+      return {"${current_inputs}"};
 
   - platform: template
     name: "Current Type"
     entity_category: diagnostic
     lambda: |-
-      return {"${Current_Type}"};                    
+      return {"${current_type}"};
 
   # =====================================================
   # IPEM SIX CHANNEL METADATA
@@ -611,19 +621,59 @@ text_sensor:
 
       return {"Idle"};
 
-# =====================================================
-# SENSORS
-# =====================================================
+  - platform: template
+    name: "${tmp102_name} Status"
+    icon: mdi:thermometer
+    entity_category: diagnostic
+    lambda: |-
+      float t = id(tmp102_temp_c).state;
+      if (t < 0)   return {"Very Cold"};
+      if (t < 15)  return {"Cold"};
+      if (t < 30)  return {"Normal"};
+      if (t < 45)  return {"Warm"};
+      return {"Hot"};
+    update_interval: 30s
+
+################################## SENSOR ##################################
 
 sensor:
-  # =====================================================
-  # TMP102
-  # =====================================================
+  # ================================================================================
+  # TMP102 PCB Board Ambient Temperature - Will always be warmer than actual Ambient
+  # ================================================================================
 
   - platform: tmp102
-    name: "IPEM SIX Internal Temperature"
+    name: "${tmp102_name} °C"
+    id: tmp102_temp_c
+    i2c_id: i2c_bus
+    address: 0x4A # As used in your Arduino code
+    update_interval: ${tmp102_update_interval}
+    accuracy_decimals: 2
+    device_class: "temperature"
+    state_class: "measurement"
+    unit_of_measurement: "°C"
+    icon: "mdi:thermometer"
+    filters:
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 3
+
+  - platform: tmp102
+    name: "${tmp102_name} °F"
+    id: tmp102_temp_f
+    i2c_id: i2c_bus
     address: 0x4A
-    update_interval: 10s
+    update_interval: ${tmp102_update_interval}
+    accuracy_decimals: 1
+    device_class: "temperature"
+    state_class: "measurement"
+    unit_of_measurement: "°F"
+    icon: "mdi:thermometer"
+    filters:
+      - lambda: |-
+          return x * 1.8 + 32.0;
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 3
 
   # =====================================================
   # BANK A
