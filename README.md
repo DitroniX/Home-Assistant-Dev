@@ -1,9 +1,16 @@
 
 ## Home Assistant Development and Integration 
 
-#### Welcome to the DitroniX Home Assistant ESPHome Integration
+#### Welcome to the DitroniX Home Assistant ESPHome Integration Hub.
 
 This repository is for integration of DitroniX boards into Home Assistant using the ESPHome YAML and Components.
+
+## Current Board Support Includes
+
+* [ATM90E36 Component](https://github.com/DitroniX/Home-Assistant-Dev/tree/main/components/ATM90E36)
+* [IPEM ATM90E36 and related boards](https://github.com/DitroniX/Home-Assistant-Dev/tree/main/YAML%20Examples/EPEM%20ATM90E36)
+* [IPEM SIX (DUAL ATM90E32)](https://github.com/DitroniX/Home-Assistant-Dev/tree/main/YAML%20Examples/IPEM%20SIX)
+* [WREN C5](https://github.com/DitroniX/Home-Assistant-Dev/tree/main/YAML%20Examples/WREN%20C5)
 
 The development and integration repository is work in progress as various projects evolve.  It will also expand on route.
 
