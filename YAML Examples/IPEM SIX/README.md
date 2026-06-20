@@ -2,7 +2,7 @@
 
 ## **IPEM SIX - ESPHome Example Code**
 
-This is a working ESPHome YAML development code for IPEM SIX, for Home Assistant.
+This is a fully working ESPHome YAML development code for IPEM SIX, for Home Assistant.
 
 [![IPEM SIX Preview](https://github.com/DitroniX/IPEM-SIX-ESP32C5-ATM90E32-IoT-Mains-Power-Energy-Monitor/blob/main/Datasheets%20and%20Information/IPEM%20SIX%20-%20Overview.png?raw=true)](https://github.com/DitroniX/IPEM-SIX-ESP32C5-ATM90E32-IoT-Mains-Power-Energy-Monitor)
 
@@ -29,8 +29,15 @@ Designed as a professional-grade residential and small commercial energy monitor
 
 ## Timeline
 
-Now the code has been released and tested, other variants will also be provided.
+Now the code has been released and tested as a single phase with up to six inputs, other features and variants will also be provided.
 
+To complete the IPEM SIX ESPHome functionality:
+* RS485 MODBUS
+* GPIO Control (GPI/PWM)
+* OPTO Isolator Output Control
+* OLED Support (Display Panel)
+
+Three branches will then follow:
 * Split Phase
 * Two Phase, over the Two Banks
 * Three Phase
