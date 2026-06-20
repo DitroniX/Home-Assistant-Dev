@@ -4,7 +4,7 @@
 
 This is a working ESPHome YAML development code for IPEM SIX, for Home Assistant.
 
-![IPEM SIX Preview](https://github.com/DitroniX/IPEM-SIX-ESP32C5-ATM90E32-IoT-Mains-Power-Energy-Monitor/blob/main/Datasheets%20and%20Information/IPEM%20SIX%20-%20Overview.png)
+[![IPEM SIX Preview](https://github.com/DitroniX/IPEM-SIX-ESP32C5-ATM90E32-IoT-Mains-Power-Energy-Monitor/blob/main/Datasheets%20and%20Information/IPEM%20SIX%20-%20Overview.png?raw=true)](https://github.com/DitroniX/IPEM-SIX-ESP32C5-ATM90E32-IoT-Mains-Power-Energy-Monitor)
 
 ## Summary
 
@@ -26,6 +26,14 @@ Designed as a professional-grade residential and small commercial energy monitor
 ## Snippet of the ESPHome Dash
 
 ![IPEM SIX ESPHome Preview](https://github.com/DitroniX/Home-Assistant-Dev/blob/main/YAML%20Examples/IPEM%20SIX/ipem-six-c5-single-phase-six-channel.png)
+
+## Timeline
+
+Now the code has been released and tested, other variants will also be provided.
+
+* Split Phase
+* Two Phase, over the Two Banks
+* Three Phase
 
 ## **Code Overview**
 
