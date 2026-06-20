@@ -3,7 +3,7 @@
 
 #### Welcome to the DitroniX Home Assistant ESPHome Integration
 
-This repository is for integration of DitroniX boards into Home Assistant using the ESPHome Components.
+This repository is for integration of DitroniX boards into Home Assistant using the ESPHome YAML and Components.
 
 The development and integration repository is work in progress as various projects evolve.  It will also expand on route.
 
