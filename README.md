@@ -1,7 +1,7 @@
 
 ## Home Assistant Development and Integration 
 
-#### Welcome to the DitroniX Home Asssitant Integration
+#### Welcome to the DitroniX Home Assistant ESPHome Integration
 
 This repository is for integration of DitroniX boards into Home Assistant using the ESPHome Components.
 
@@ -71,6 +71,7 @@ An example guide has been put together which should help get your boards up and 
 ## Versions
 
 
+ - 260620 - Added IPEM SIX Integration for ESPHome 
  - 260618 - Added WREN Integration for ESPHome 
  - 260613 - Added TCA6408 for Dev Testing
  - 260529 - Refresh Information

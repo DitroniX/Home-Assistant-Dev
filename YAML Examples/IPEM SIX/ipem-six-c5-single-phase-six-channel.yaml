@@ -1,0 +1,1146 @@
+# Dave Williams, DitroniX 2019-2026 (ditronix.net)
+# IPEM SIX - ESP32-C5 | ATM90E32 | WiFi 2.4/5GHz | Zigbee | Bluetooth | SIX Channel IoT Mains Power Energy Monitor
+
+# June 2026: Example Code, to demonstrate and test the IPEM SIX
+
+# Remember!
+# - Set the BOARD to Use ESP32C5 Dev Module (or similar).
+# - You can also set the BAUD rate up to 921600 to speed up flashing.
+# - The SDK does NOT need external power to flash.  It will take Power from the USB 5V.
+# - The Serial Monitor is configured for BAUD 115200
+
+# The purpose of this test code is to cycle through the various main functions of the board as part of bring up testing.
+
+# This test code is OPEN SOURCE and formatted for easier viewing.  Although is is not intended for real world use, it may be freely used, or modified as needed.
+# It is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+# For board configuration, see github.com/DitroniX/IPEM-SIX-ESP32C5-ATM90E32-IoT-Mains-Power-Energy-Monitor/wiki/Arduino-IDE
+
+# Further information, details and examples can be found on our website or github.com/DitroniX
+
+# * ditronix.net
+# * github.com/DitroniX
+# * github.com/DitroniX/IPEM-SIX-ESP32C5-ATM90E32-IoT-Mains-Power-Energy-Monitor
+# * github.com/DitroniX/IPEM-SIX-ESP32C5-ATM90E32-IoT-Mains-Power-Energy-Monitor/wiki
+# * hackster.io/DitroniX/ipem-six-esp32c5-atm90e32-iot-mains-power-energy-monitor-e323bd
+
+# This YAML code has been created to show the features and functionality of IPEM SIX.
+# IPEM SIX C5 is a professional 6-channel dual-bank energy monitoring device based on the ESP32-C5 platform and dual ATM90E32 energy measurement ICs.
+
+esphome:
+  name: ipem-six-c5
+  friendly_name: IPEM SIX C5
+
+  on_boot:
+    priority: -100
+    then:
+      - delay: 2s
+      - light.turn_on:
+          id: heartbeat_led
+          effect: "Green Heartbeat"
+
+esp32:
+  board: esp32-c5-devkitc-1
+  variant: esp32c5
+  framework:
+    type: esp-idf
+
+substitutions:
+  author: "DitroniX - Dave Williams"
+  firmware_version: "1.00.00"
+  release_date: "2026-06-20"
+  board_name: "IPEM Plus"
+  board_mcu: "ESP32-C5"
+  board_rev: "1.2606.102"
+
+  project:
+    name: "ditronix.ipem_six"
+    version: "${firmware_version}"
+
+api:
+  encryption:
+    key: "xxxx="
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  ap:
+    ssid: IPEM SIX C5 Fallback Hotspot
+    password: "xxxx"
+
+captive_portal:
+
+logger:
+  level: WARN
+
+# =====================================================
+# SPI BUS
+# =====================================================
+
+spi:
+  clk_pin: GPIO10
+  mosi_pin: GPIO8
+  miso_pin: GPIO9
+
+# =====================================================
+# I2C TMP102
+# =====================================================
+
+i2c:
+  sda: GPIO2
+  scl: GPIO3
+  frequency: 400kHz
+  scan: true
+
+# =====================================================
+# ADS1115 16-bit ADC
+# Address 0x49
+# =====================================================
+
+ads1115:
+  address: 0x49
+
+# =====================================================
+# ADS1115 USER CALIBRATION VALUES
+# =====================================================
+
+globals:
+  - id: average_samples
+    type: int
+    initial_value: "50"
+
+  - id: dc_voltage_factor
+    type: float
+    initial_value: "9.0588235"
+
+  - id: adc_voltage_factor
+    type: float
+    initial_value: "24.105"
+
+  - id: dc_voltage_drop
+    type: float
+    initial_value: "0.54"
+
+# =====================================================
+# HEARTBEAT
+# =====================================================
+
+light:
+  - platform: esp32_rmt_led_strip
+
+    id: heartbeat_led
+
+    # name: "Heartbeat LED"
+
+    pin: GPIO27
+
+    num_leds: 1
+
+    chipset: WS2812
+
+    rgb_order: GRB
+
+    effects:
+      - addressable_lambda:
+          name: "Green Heartbeat"
+
+          update_interval: 50ms
+
+          lambda: |-
+
+            static uint8_t step = 0;
+
+            uint8_t b = 0;
+
+
+            if(step == 0 || step == 2)
+              b = 30;
+
+            else if(step == 1 || step == 3)
+              b = 10;
+
+
+            it[0] = Color(0,b,0);
+
+
+            step++;
+
+            if(step > 20)
+              step = 0;
+
+# =====================================================
+# USER ADJUSTMENTS
+# =====================================================
+
+number:
+  - platform: template
+
+    name: "IPEM SIX CT Activity Threshold"
+
+    id: ct_activity_threshold
+
+    min_value: 0.100
+    max_value: 5.00
+    step: 0.100
+    unit_of_measurement: A
+    optimistic: true
+    restore_value: true
+    initial_value: 0.100
+
+  - platform: template
+
+    name: "IPEM SIX High Load Threshold"
+    id: high_load_threshold
+
+    min_value: 1
+    max_value: 100
+    step: 1
+    unit_of_measurement: A
+    optimistic: true
+    restore_value: true
+    initial_value: 10
+
+text_sensor:
+  # =====================================================
+  # IPEM SIX FIRMWARE METADATA
+  # =====================================================
+
+  - platform: template
+    name: "Author"
+    entity_category: diagnostic
+    lambda: |-
+      return {"${author}"};
+
+  - platform: template
+    name: "Firmware Version"
+    entity_category: diagnostic
+    lambda: |-
+      return {"${firmware_version}"};
+
+  - platform: template
+    name: "Release Date"
+    entity_category: diagnostic
+    lambda: |-
+      return {"${release_date}"};
+
+  - platform: template
+    name: "Board Name"
+    entity_category: diagnostic
+    lambda: |-
+      return {"${board_name}"};
+
+  - platform: template
+    name: "Board MCU"
+    entity_category: diagnostic
+    lambda: |-
+      return {"${variant}"};
+
+  - platform: template
+    name: "Board Build"
+    entity_category: diagnostic
+    lambda: |-
+      return {"${board_rev}"};
+
+  # =====================================================
+  # IPEM SIX CHANNEL METADATA
+  # =====================================================
+
+  - platform: template
+    name: "Bank A Channel 1 Description"
+    id: bank_a_1_description
+    icon: mdi:information
+    lambda: |-
+      return {"Kitchen"};
+
+  - platform: template
+    name: "Bank A Channel 2 Description"
+    id: bank_a_2_description
+    icon: mdi:information
+    lambda: |-
+      return {"EV Charger"};
+
+  - platform: template
+    name: "Bank A Channel 3 Description"
+    id: bank_a_3_description
+    icon: mdi:information
+    lambda: |-
+      return {"Solar Inverter"};
+
+  - platform: template
+    name: "Bank B Channel 1 Description"
+    id: bank_b_1_description
+    icon: mdi:information
+    lambda: |-
+      return {"Heat Pump"};
+
+  - platform: template
+    name: "Bank B Channel 2 Description"
+    id: bank_b_2_description
+    icon: mdi:information
+    lambda: |-
+      return {"Workshop"};
+
+  - platform: template
+    name: "Bank B Channel 3 Description"
+    id: bank_b_3_description
+    icon: mdi:information
+    lambda: |-
+      return {"Ring"};
+
+  - platform: template
+    name: "IPEM SIX Product"
+    icon: mdi:information
+
+    lambda: |-
+      return {"Professional Energy Monitor"};
+
+  - platform: template
+    name: "IPEM SIX Hardware"
+    icon: mdi:information
+
+    lambda: |-
+
+      return {"ESP32-C5 Dual ATM90E32"};
+
+  - platform: template
+    name: "IPEM SIX Configuration"
+    icon: mdi:information
+
+    lambda: |-
+
+      return {"6 Channel Dual Bank CT Meter"};
+
+  - platform: template
+    name: "IPEM SIX Status"
+    icon: mdi:heart-pulse
+
+    lambda: |-
+
+      if(id(mains_voltage).state < 90)
+        return {"Voltage Fault"};
+
+      if(id(mains_voltage).state > 250)
+        return {"Voltage Warning"};        
+
+      if(id(bank_a_total_current).state > 99 || id(bank_b_total_current).state > 99)
+        return {"Warning: Over Current"};          
+
+      if(id(wifi_signal_db).state < -80)
+        return {"Signal Warning"};
+
+      return {"Healthy"};
+
+    update_interval: 15s
+
+  - platform: template
+    name: "IPEM SIX WiFi Signal Quality"
+    id: wifi_signal_quality
+    entity_category: diagnostic
+    update_interval: 30s
+    lambda: |-
+      if (!id(wifi_signal_db).has_state()) {
+        return {"No Signal"};
+      }
+
+      int rssi = abs((int)id(wifi_signal_db).state);
+
+      if (rssi <= 30) {
+        return {"Signal Very Strong"};
+      } else if (rssi <= 50) {
+        return {"Signal Excellent"};
+      } else if (rssi <= 60) {
+        return {"Signal Healthy"};
+      } else if (rssi <= 70) {
+        return {"Signal Very Good"};
+      } else if (rssi <= 80) {
+        return {"Signal Good"};
+      } else if (rssi <= 90) {
+        return {"Signal Poor - Try Moving Position"};
+      } else if (rssi <= 100) {
+        return {"Signal Very Low - Move Position"};
+      } else {
+        return {"No Signal"};
+      }
+
+  # =====================================================
+  # VOLTAGE INFORMATION
+  # =====================================================
+
+  # Mains Voltage range in the UK.
+  # 230V -6% / +10%
+  # Low    < 216V
+  # Normal 216V - 253V
+  # High   > 253V
+
+  - platform: template
+
+    name: "IPEM SIX Voltage Status"
+    icon: mdi:sine-wave
+
+    lambda: |-
+
+      if (id(mains_voltage).state < 216.0)
+        return {"Low"};
+
+      if (id(mains_voltage).state > 253.0)
+        return {"High"};
+
+      return {"Normal"};
+
+    update_interval: 10s
+
+  # =====================================================
+  # FREQUENCY INFORMATION
+  # =====================================================
+
+  # Mains Frequency ranges.
+  # Europe and UK which typically is 230 V @ 50 Hz
+
+  # With ranges around 216 V to 253 V
+  # USA and Canada which typically is 120 V or 230 V @ 60 Hz
+
+  # With ranges around 114 V to 126 V
+  # Japan which typically is 100 V @ 50 Hz or 60 Hz
+
+  # Eastern Japan is 50 Hz, and Western Japan is 60 Hz
+
+  # World typically is 220V-240 V @ 50 Hz
+
+  # Based on 50 Hz
+  # Low     <49 Hz
+  # Normal  49-51 Hz
+  # High    >51 Hz
+
+  - platform: template
+
+    name: "IPEM SIX Frequency Status"
+    icon: mdi:waves-arrow-right
+
+    lambda: |-
+
+      if (id(mains_frequency).state < 49.0)
+        return {"Low"};
+
+      if (id(mains_frequency).state > 51.0)
+        return {"High"};
+
+      return {"Normal"};
+
+    update_interval: 10s
+
+  - platform: template
+
+    name: "IPEM SIX Meter Type"
+
+    lambda: |-
+      return {"IPEM SIX - Dual ATM90E32 / 6 Channel"};
+
+  # =====================================================
+  # HEALTH
+  # =====================================================
+
+  - platform: uptime
+    name: "IPEM SIX Uptime"
+
+  # =====================================================
+  # CT CHANNEL ACTIVITY STATUS
+  # =====================================================
+
+  - platform: template
+    name: "Bank A 1 Status"
+    icon: mdi:flash
+
+    lambda: |-
+
+      if(id(bank_a_1_current).state >= id(high_load_threshold).state)
+        return {"High Load"};
+
+      if(id(bank_a_1_current).state >= id(ct_activity_threshold).state)
+        return {"Active"};
+
+      return {"Idle"};
+
+  - platform: template
+    name: "Bank A 2 Status"
+    icon: mdi:flash
+
+    lambda: |-
+
+      if(id(bank_a_2_current).state >= id(ct_activity_threshold).state)
+
+        return {"Active"};
+
+      return {"Idle"};
+
+  - platform: template
+    name: "Bank A 3 Status"
+    icon: mdi:flash
+
+    lambda: |-
+
+      if(id(bank_a_3_current).state >= id(ct_activity_threshold).state)
+
+        return {"Active"};
+
+      return {"Idle"};
+
+  - platform: template
+    name: "Bank B 1 Status"
+    icon: mdi:flash
+
+    lambda: |-
+
+      if(id(bank_b_1_current).state >= id(ct_activity_threshold).state)
+
+        return {"Active"};
+
+      return {"Idle"};
+
+  - platform: template
+    name: "Bank B 2 Status"
+    icon: mdi:flash
+
+    lambda: |-
+
+      if(id(bank_b_2_current).state >= id(ct_activity_threshold).state)
+
+        return {"Active"};
+
+      return {"Idle"};
+
+  - platform: template
+    name: "Bank B 3 Status"
+    icon: mdi:flash
+
+    lambda: |-
+
+      if(id(bank_b_3_current).state >= id(ct_activity_threshold).state)
+
+        return {"Active"};
+
+      return {"Idle"};
+
+# =====================================================
+# SENSORS
+# =====================================================
+
+sensor:
+  # =====================================================
+  # TMP102
+  # =====================================================
+
+  - platform: tmp102
+    name: "IPEM SIX Internal Temperature"
+    address: 0x4A
+    update_interval: 10s
+
+  # =====================================================
+  # BANK A
+  # CS GPIO6
+  # =====================================================
+
+  - platform: atm90e32
+
+    id: bank_a
+
+    cs_pin: GPIO6
+    gain_pga: 2X
+    line_frequency: 50Hz
+
+    phase_a:
+      voltage:
+        name: "IPEM SIX Mains Voltage"
+        id: mains_voltage
+
+      current:
+        name: "Bank A 1 Current"
+        id: bank_a_1_current
+
+      power:
+        name: "Bank A 1 Power"
+        id: bank_a_1_power
+
+      reactive_power:
+        name: "Bank A 1 Reactive Power"
+
+      power_factor:
+        name: "Bank A 1 Power Factor"
+
+      gain_voltage: 38300
+      gain_ct: 64800
+
+    phase_b:
+      current:
+        name: "Bank A 2 Current"
+        id: bank_a_2_current
+
+      power:
+        name: "Bank A 2 Power"
+        id: bank_a_2_power
+
+      gain_voltage: 38300
+      gain_ct: 64800
+
+    phase_c:
+      current:
+        name: "Bank A 3 Current"
+        id: bank_a_3_current
+
+      power:
+        name: "Bank A 3 Power"
+        id: bank_a_3_power
+
+      gain_voltage: 38300
+      gain_ct: 64800
+
+    frequency:
+      name: "IPEM SIX Frequency"
+      id: mains_frequency
+
+    chip_temperature:
+      name: "Bank A Temperature"
+
+    update_interval: 2s
+
+  # =====================================================
+  # BANK B
+  # CS GPIO7
+  # =====================================================
+
+  - platform: atm90e32
+
+    id: bank_b
+
+    cs_pin: GPIO7
+    gain_pga: 2X
+    line_frequency: 50Hz
+
+    phase_a:
+      current:
+        name: "Bank B 1 Current"
+        id: bank_b_1_current
+
+      power:
+        name: "Bank B 1 Power"
+        id: bank_b_1_power
+
+      gain_voltage: 38300
+      gain_ct: 64800
+
+    phase_b:
+      current:
+        name: "Bank B 2 Current"
+        id: bank_b_2_current
+
+      power:
+        name: "Bank B 2 Power"
+        id: bank_b_2_power
+
+      gain_voltage: 38300
+      gain_ct: 64800
+
+    phase_c:
+      current:
+        name: "Bank B 3 Current"
+        id: bank_b_3_current
+
+      power:
+        name: "Bank B 3 Power"
+        id: bank_b_3_power
+
+      gain_voltage: 38300
+      gain_ct: 64800
+
+    chip_temperature:
+      name: "Bank B Temperature"
+
+    update_interval: 2s
+
+  # =====================================================
+  # BANK A IMPORT POWER
+  # =====================================================
+
+  - platform: template
+    name: "Bank A Import Power"
+    id: bank_a_import_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+
+    lambda: |-
+
+      float t = 0;
+
+      if(id(bank_a_1_power).state > 0)
+        t += id(bank_a_1_power).state;
+
+      if(id(bank_a_2_power).state > 0)
+        t += id(bank_a_2_power).state;
+
+      if(id(bank_a_3_power).state > 0)
+        t += id(bank_a_3_power).state;
+
+      return t;
+
+    update_interval: 10s
+
+  # =====================================================
+  # BANK B IMPORT POWER
+  # =====================================================
+
+  - platform: template
+    name: "Bank B Import Power"
+    id: bank_b_import_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+
+    lambda: |-
+
+      float t = 0;
+
+      if(id(bank_b_1_power).state > 0)
+        t += id(bank_b_1_power).state;
+
+      if(id(bank_b_2_power).state > 0)
+        t += id(bank_b_2_power).state;
+
+      if(id(bank_b_3_power).state > 0)
+        t += id(bank_b_3_power).state;
+
+      return t;
+
+    update_interval: 10s
+
+  # =====================================================
+  # BANK A ENERGY
+  # =====================================================
+
+  - platform: integration
+    name: "Bank A Import Energy"
+    sensor: bank_a_import_power
+    time_unit: h
+    integration_method: trapezoid
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+
+  - platform: template
+    name: "Bank A 1 Import Power"
+    id: bank_a_1_import_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+
+    lambda: |-
+      return id(bank_a_1_power).state > 0 ?
+             id(bank_a_1_power).state : 0;
+
+    update_interval: 10s
+
+  - platform: template
+    name: "Bank A 2 Import Power"
+    id: bank_a_2_import_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+
+    lambda: |-
+      return id(bank_a_2_power).state > 0 ?
+             id(bank_a_2_power).state : 0;
+
+    update_interval: 10s
+
+  - platform: template
+    name: "Bank A 3 Import Power"
+    id: bank_a_3_import_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+
+    lambda: |-
+      return id(bank_a_3_power).state > 0 ?
+             id(bank_a_3_power).state : 0;
+
+    update_interval: 10s
+
+  - platform: integration
+    name: "Bank A 1 Energy"
+    sensor: bank_a_1_import_power
+    time_unit: h
+    integration_method: trapezoid
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+
+  - platform: integration
+    name: "Bank A 2 Energy"
+    sensor: bank_a_2_import_power
+    time_unit: h
+    integration_method: trapezoid
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+
+  - platform: integration
+    name: "Bank A 3 Energy"
+    sensor: bank_a_3_import_power
+    time_unit: h
+    integration_method: trapezoid
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+
+  - platform: integration
+    name: "Bank B 1 Energy"
+    sensor: bank_b_1_import_power
+    time_unit: h
+    integration_method: trapezoid
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+
+  - platform: integration
+    name: "Bank B 2 Energy"
+    sensor: bank_b_2_import_power
+    time_unit: h
+    integration_method: trapezoid
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+
+  - platform: integration
+    name: "Bank B 3 Energy"
+    sensor: bank_b_3_import_power
+    time_unit: h
+    integration_method: trapezoid
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+
+  # =====================================================
+  # BANK B ENERGY
+  # =====================================================
+
+  - platform: integration
+    name: "Bank B Import Energy"
+    sensor: bank_b_import_power
+    time_unit: h
+    integration_method: trapezoid
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+
+  - platform: template
+    name: "Bank B 1 Import Power"
+    id: bank_b_1_import_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+
+    lambda: |-
+      return id(bank_b_1_power).state > 0 ?
+             id(bank_b_1_power).state : 0;
+
+    update_interval: 10s
+
+  - platform: template
+    name: "Bank B 2 Import Power"
+    id: bank_b_2_import_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+
+    lambda: |-
+      return id(bank_b_2_power).state > 0 ?
+             id(bank_b_2_power).state : 0;
+
+    update_interval: 10s
+
+  - platform: template
+    name: "Bank B 3 Import Power"
+    id: bank_b_3_import_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+
+    lambda: |-
+      return id(bank_b_3_power).state > 0 ?
+             id(bank_b_3_power).state : 0;
+
+    update_interval: 10s
+
+    # =====================================================
+  # BANK TOTAL CURRENT
+  # =====================================================
+
+  - platform: template
+    name: "Bank A Total Current"
+    id: bank_a_total_current
+    unit_of_measurement: A
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 2
+
+    lambda: |-
+      return id(bank_a_1_current).state +
+             id(bank_a_2_current).state +
+             id(bank_a_3_current).state;
+
+    update_interval: 10s
+
+  - platform: template
+    name: "Bank B Total Current"
+    id: bank_b_total_current
+    unit_of_measurement: A
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 2
+
+    lambda: |-
+      return id(bank_b_1_current).state +
+             id(bank_b_2_current).state +
+             id(bank_b_3_current).state;
+
+    update_interval: 10s
+
+  # =====================================================
+  # BANK TOTAL POWER
+  # =====================================================
+
+  - platform: template
+    name: "Bank A Total Power"
+    id: bank_a_total_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 1
+
+    lambda: |-
+      return id(bank_a_1_power).state +
+             id(bank_a_2_power).state +
+             id(bank_a_3_power).state;
+
+    update_interval: 10s
+
+  - platform: template
+    name: "Bank B Total Power"
+    id: bank_b_total_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 1
+
+    lambda: |-
+      return id(bank_b_1_power).state +
+             id(bank_b_2_power).state +
+             id(bank_b_3_power).state;
+
+    update_interval: 10s
+
+  # =====================================================
+  # TOTAL POWER
+  # =====================================================
+  - platform: template
+    name: "IPEM SIX Total Power"
+    id: total_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+
+    lambda: |-
+
+      return
+
+      id(bank_a_1_power).state +
+      id(bank_a_2_power).state +
+      id(bank_a_3_power).state +
+      id(bank_b_1_power).state +
+      id(bank_b_2_power).state +
+      id(bank_b_3_power).state;
+
+    update_interval: 10s
+
+    # =====================================================
+  # NET POWER
+  # =====================================================
+
+  - platform: template
+    name: "IPEM SIX Net Power"
+    id: ipem_net_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 1
+
+    lambda: |-
+      return id(import_power).state -
+             id(export_power).state;
+
+    update_interval: 10s
+
+  # =====================================================
+  # IMPORT EXPORT
+  # =====================================================
+
+  - platform: template
+    name: "IPEM SIX Import Power"
+    id: import_power
+    unit_of_measurement: W
+    device_class: power
+
+    lambda: |-
+
+      float t=0;
+
+      if(id(bank_a_1_power).state>0)t+=id(bank_a_1_power).state;
+      if(id(bank_a_2_power).state>0)t+=id(bank_a_2_power).state;
+      if(id(bank_a_3_power).state>0)t+=id(bank_a_3_power).state;
+      if(id(bank_b_1_power).state>0)t+=id(bank_b_1_power).state;
+      if(id(bank_b_2_power).state>0)t+=id(bank_b_2_power).state;
+      if(id(bank_b_3_power).state>0)t+=id(bank_b_3_power).state;
+
+      return t;
+
+  - platform: template
+    name: "IPEM SIX Export Power"
+    id: export_power
+    unit_of_measurement: W
+    device_class: power
+
+    lambda: |-
+
+      float t=0;
+
+      if(id(bank_a_1_power).state<0)t+=abs(id(bank_a_1_power).state);
+      if(id(bank_a_2_power).state<0)t+=abs(id(bank_a_2_power).state);
+      if(id(bank_a_3_power).state<0)t+=abs(id(bank_a_3_power).state);
+      if(id(bank_b_1_power).state<0)t+=abs(id(bank_b_1_power).state);
+      if(id(bank_b_2_power).state<0)t+=abs(id(bank_b_2_power).state);
+      if(id(bank_b_3_power).state<0)t+=abs(id(bank_b_3_power).state);
+
+      return t;
+
+  # =====================================================
+  # ENERGY DASHBOARD
+  # =====================================================
+
+  - platform: integration
+
+    name: "IPEM SIX Import Energy"
+    sensor: import_power
+    time_unit: h
+    integration_method: trapezoid
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+
+  - platform: integration
+    name: "IPEM SIX Export Energy"
+    sensor: export_power
+    time_unit: h
+    integration_method: trapezoid
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+
+  - platform: template
+    name: "IPEM SIX Total Current"
+    id: total_current
+    unit_of_measurement: A
+    device_class: current
+    state_class: measurement
+    update_interval: 5s
+    lambda: |-
+      float t = 0;
+
+      if (id(bank_a_total_current).has_state())
+        t += abs(id(bank_a_total_current).state);
+
+      if (id(bank_b_total_current).has_state())
+        t += abs(id(bank_b_total_current).state);
+
+      return t;
+
+  # =====================================================
+  # OTHER SENSORS
+  # =====================================================
+
+  - platform: wifi_signal
+    name: "IPEM SIX WiFi Signal"
+    id: wifi_signal_db
+    unit_of_measurement: "dBm"
+    device_class: signal_strength
+    state_class: measurement
+    entity_category: diagnostic
+    update_interval: 30s
+
+  # -------------------------
+  # ADC0 - VDC Input
+  # -------------------------
+
+  - platform: ads1115
+    multiplexer: A0_GND
+    gain: 4.096
+    id: adc0_raw
+    update_interval: 1s
+    filters:
+      - sliding_window_moving_average:
+          window_size: 50
+          send_every: 50
+
+  - platform: template
+    name: "IPEM SIX ADC Scaled Voltage VDC"
+    unit_of_measurement: "V"
+    accuracy_decimals: 2
+
+    lambda: |-
+
+      float voltage;
+
+      voltage =
+        (id(adc0_raw).state *
+        id(dc_voltage_factor))
+        +
+        id(dc_voltage_drop);
+
+      if (voltage < 0.010)
+        voltage = 0;
+
+      return voltage;
+
+  # -------------------------
+  # ADC1
+  # -------------------------
+
+  - platform: ads1115
+    multiplexer: A1_GND
+    gain: 4.096
+    id: adc1_raw
+    update_interval: 1s
+    filters:
+      - sliding_window_moving_average:
+          window_size: 50
+          send_every: 50
+
+  - platform: template
+    name: "IPEM SIX ADC Scaled Voltage ADC1"
+    unit_of_measurement: "V"
+    accuracy_decimals: 3
+
+    lambda: |-
+
+      float voltage =
+        (id(adc1_raw).state *
+        id(adc_voltage_factor))
+        +
+        id(dc_voltage_drop);
+
+      if (voltage < 0.65)
+        voltage = 0;
+
+      return voltage;

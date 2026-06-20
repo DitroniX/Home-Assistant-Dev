@@ -1,0 +1,122 @@
+  # Dave Williams, DitroniX 2019-2026 (ditronix.net)
+  # IPEM SIX - ESP32-C5 | ATM90E32 | WiFi 2.4/5GHz | Zigbee | Bluetooth | SIX Channel IoT Mains Power Energy Monitor
+
+  # June 2026: Example Code, to demonstrate and test the IPEM SIX
+ 
+  # Remember!
+  # - Set the BOARD to Use ESP32C5 Dev Module (or similar).
+  # - You can also set the BAUD rate up to 921600 to speed up flashing.
+  # - The SDK does NOT need external power to flash.  It will take Power from the USB 5V.
+  # - The Serial Monitor is configured for BAUD 115200
+  
+  # The purpose of this test code is to cycle through the various main functions of the board as part of bring up testing.
+
+  # This test code is OPEN SOURCE and formatted for easier viewing.  Although is is not intended for real world use, it may be freely used, or modified as needed.
+  # It is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+  # For board configuration, see github.com/DitroniX/IPEM-SIX-ESP32C5-ATM90E32-IoT-Mains-Power-Energy-Monitor/wiki/Arduino-IDE
+
+  # Further information, details and examples can be found on our website or github.com/DitroniX
+
+  # * ditronix.net
+  # * github.com/DitroniX
+  # * github.com/DitroniX/IPEM-SIX-ESP32C5-ATM90E32-IoT-Mains-Power-Energy-Monitor
+  # * github.com/DitroniX/IPEM-SIX-ESP32C5-ATM90E32-IoT-Mains-Power-Energy-Monitor/wiki
+  # * hackster.io/DitroniX/ipem-six-esp32c5-atm90e32-iot-mains-power-energy-monitor-e323bd
+
+    # This YAML code is used to be the equivalent of the Hello World but for the IPEM SIX and RGB LED.
+
+esphome:
+  name: ipem-six-c5
+  friendly_name: IPEM SIX C5
+  
+  on_boot:
+    priority: -100
+    then:
+      - delay: 2s
+      - light.turn_on:
+          id: heartbeat_led
+          effect: "Green Heartbeat"  
+
+esp32:
+  board: esp32-c5-devkitc-1
+  variant: esp32c5
+  framework:
+    type: esp-idf
+
+# #############################  CONFIG  #############################
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "xxxx="
+
+ota:
+  - platform: esphome
+    password: "xxxx"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "IPEM SIX C5 Fallback Hotspot"
+    password: "xxxx"
+
+captive_portal:    
+
+# ==================== LOGGING ====================
+logger:
+  # level: WARN          # Reduces spam - only shows warnings and errors
+  # level: ERROR         # Even quieter (uncomment if you want)
+  # level: DEBUG         # Head scratching time.
+    
+# #############################  CODE  #############################    
+
+# ========================= SPI BUS (Shared) =========================
+
+spi:
+  clk_pin: GPIO10
+  mosi_pin: GPIO8
+  miso_pin: GPIO9
+
+# ========================= HEARTBEAT LED =========================
+
+light:
+
+  - platform: esp32_rmt_led_strip
+    id: heartbeat_led
+    pin: GPIO27
+    num_leds: 1
+    chipset: WS2812
+    rgb_order: GRB
+    restore_mode: RESTORE_AND_ON
+
+    effects:
+
+      - addressable_lambda:
+          name: "Green Heartbeat"
+          update_interval: 50ms
+
+          lambda: |-
+            static uint8_t step = 0;
+
+            uint8_t b = 0;
+
+            if (step == 0 || step == 2)
+              b = 30;
+            else if (step == 1 || step == 3)
+              b = 10;
+
+            it[0] = Color(0, b, 0);
+
+            step++;
+
+            if (step > 20)
+              step = 0;
+
+
+
+
+
