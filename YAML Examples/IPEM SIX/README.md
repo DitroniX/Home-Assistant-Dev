@@ -37,13 +37,15 @@ IPEM SIX ESPHome functionality Wish List:
 
 ✅ TMP102 Board Ambient Temperature  
 ✅ Labelling Current Inputs using substitutions  
+✅ ADC Integration  
 ✅ Prepare for Integrated Options phase  
+✅ Code housekeeping  
 * RS485 MODBUS
 * GPIO Control (GPI/PWM)
 * OPTO Isolator Output Control
 * OLED Support (Display Panel)
 
-Integrated Options:
+Integrated Options Development:
 
 ✅ Single Phase
 * Split Phase
