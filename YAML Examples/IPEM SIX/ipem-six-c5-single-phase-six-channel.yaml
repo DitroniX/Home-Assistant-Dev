@@ -46,10 +46,32 @@ esp32:
   framework:
     type: esp-idf
 
+################################## ESPHOME ##################################
+
+# ======================== ESPHome - Enter Below our Key/pasaword ===========================
+
+api:
+  encryption:
+    key: "xxxx"
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  ap:
+    ssid: IPEM SIX C5 Fallback Hotspot
+    password: "xxxx"
+
+################################## SUBSTITUTIONS ##################################
 substitutions:
+  # ======================== Current Input Names ===========================
+
   author: "DitroniX - Dave Williams"
-  firmware_version: "1.00.03"
-  release_date: "2026-06-20"
+  firmware_version: "1.00.04"
+  release_date: "2026-06-21"
   board_name: "IPEM SIX"
   board_mcu: "ESP32-C5"
   board_rev: "1.2606.102"
@@ -64,11 +86,13 @@ substitutions:
   bank_b_3_name: "CTB-3"
 
   # ======================== MAINS CONFIG ===========================
-  line_frequency: "50Hz" # Change to "60Hz" for US/Canada/etc.
-  line_voltage: "230V" # For status thresholds and comments
+  # For UK/Europe/Eastern Japan/Most of World etc.
+  line_frequency: "50Hz"
+  line_voltage: "230V"
 
-  # line_frequency: "60Hz" # Change to "60Hz" for US/Canada/etc.
-  # line_voltage: "110" # For status thresholds and comments
+  # For US/Canada/Western Japan/etc.
+  # line_frequency: "60Hz"
+  # line_voltage: "110"
   # ===============================================================
 
   # ======================== BOARD CONFIG ===========================
@@ -92,21 +116,6 @@ substitutions:
   project:
     name: "ditronix.ipem_six"
     version: "${firmware_version}"
-
-api:
-  encryption:
-    key: "xxxx"
-
-ota:
-  - platform: esphome
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-
-  ap:
-    ssid: IPEM SIX C5 Fallback Hotspot
-    password: "xxxx"
 
 captive_portal:
 
@@ -834,12 +843,10 @@ sensor:
     unit_of_measurement: W
     device_class: power
     state_class: measurement
-
+    update_interval: 10s
     lambda: |-
       return id(bank_a_1_power).state > 0 ?
              id(bank_a_1_power).state : 0;
-
-    update_interval: 10s
 
   - platform: template
     name: "${bank_a_2_name} Import Power"
@@ -847,12 +854,10 @@ sensor:
     unit_of_measurement: W
     device_class: power
     state_class: measurement
-
+    update_interval: 10s
     lambda: |-
       return id(bank_a_2_power).state > 0 ?
              id(bank_a_2_power).state : 0;
-
-    update_interval: 10s
 
   - platform: template
     name: "${bank_a_3_name} Import Power"
@@ -860,12 +865,10 @@ sensor:
     unit_of_measurement: W
     device_class: power
     state_class: measurement
-
+    update_interval: 10s
     lambda: |-
       return id(bank_a_3_power).state > 0 ?
              id(bank_a_3_power).state : 0;
-
-    update_interval: 10s
 
   - platform: integration
     name: "${bank_a_1_name} Energy"
@@ -940,12 +943,10 @@ sensor:
     unit_of_measurement: W
     device_class: power
     state_class: measurement
-
+    update_interval: 10s
     lambda: |-
       return id(bank_b_1_power).state > 0 ?
              id(bank_b_1_power).state : 0;
-
-    update_interval: 10s
 
   - platform: template
     name: "${bank_b_2_name} Import Power"
@@ -953,12 +954,10 @@ sensor:
     unit_of_measurement: W
     device_class: power
     state_class: measurement
-
+    update_interval: 10s
     lambda: |-
       return id(bank_b_2_power).state > 0 ?
              id(bank_b_2_power).state : 0;
-
-    update_interval: 10s
 
   - platform: template
     name: "${bank_b_3_name} Import Power"
@@ -966,12 +965,10 @@ sensor:
     unit_of_measurement: W
     device_class: power
     state_class: measurement
-
+    update_interval: 10s
     lambda: |-
       return id(bank_b_3_power).state > 0 ?
              id(bank_b_3_power).state : 0;
-
-    update_interval: 10s
 
     # =====================================================
   # BANK TOTAL CURRENT
@@ -999,13 +996,11 @@ sensor:
     device_class: current
     state_class: measurement
     accuracy_decimals: 2
-
+    update_interval: 10s
     lambda: |-
       return id(bank_b_1_current).state +
              id(bank_b_2_current).state +
              id(bank_b_3_current).state;
-
-    update_interval: 10s
 
   # =====================================================
   # BANK TOTAL POWER
@@ -1018,13 +1013,11 @@ sensor:
     device_class: power
     state_class: measurement
     accuracy_decimals: 1
-
+    update_interval: 10s
     lambda: |-
       return id(bank_a_1_power).state +
              id(bank_a_2_power).state +
              id(bank_a_3_power).state;
-
-    update_interval: 10s
 
   - platform: template
     name: "Bank B Total Power"
@@ -1033,13 +1026,11 @@ sensor:
     device_class: power
     state_class: measurement
     accuracy_decimals: 1
-
+    update_interval: 10s
     lambda: |-
       return id(bank_b_1_power).state +
              id(bank_b_2_power).state +
              id(bank_b_3_power).state;
-
-    update_interval: 10s
 
   # =====================================================
   # TOTAL POWER
@@ -1050,19 +1041,15 @@ sensor:
     unit_of_measurement: W
     device_class: power
     state_class: measurement
-
+    update_interval: 10s
     lambda: |-
-
       return
-
       id(bank_a_1_power).state +
       id(bank_a_2_power).state +
       id(bank_a_3_power).state +
       id(bank_b_1_power).state +
       id(bank_b_2_power).state +
       id(bank_b_3_power).state;
-
-    update_interval: 10s
 
     # =====================================================
   # NET POWER
@@ -1075,12 +1062,10 @@ sensor:
     device_class: power
     state_class: measurement
     accuracy_decimals: 1
-
+    update_interval: 10s
     lambda: |-
       return id(import_power).state -
              id(export_power).state;
-
-    update_interval: 10s
 
   # =====================================================
   # IMPORT EXPORT
@@ -1091,18 +1076,14 @@ sensor:
     id: import_power
     unit_of_measurement: W
     device_class: power
-
     lambda: |-
-
       float t=0;
-
       if(id(bank_a_1_power).state>0)t+=id(bank_a_1_power).state;
       if(id(bank_a_2_power).state>0)t+=id(bank_a_2_power).state;
       if(id(bank_a_3_power).state>0)t+=id(bank_a_3_power).state;
       if(id(bank_b_1_power).state>0)t+=id(bank_b_1_power).state;
       if(id(bank_b_2_power).state>0)t+=id(bank_b_2_power).state;
       if(id(bank_b_3_power).state>0)t+=id(bank_b_3_power).state;
-
       return t;
 
   - platform: template
@@ -1110,18 +1091,14 @@ sensor:
     id: export_power
     unit_of_measurement: W
     device_class: power
-
     lambda: |-
-
       float t=0;
-
       if(id(bank_a_1_power).state<0)t+=abs(id(bank_a_1_power).state);
       if(id(bank_a_2_power).state<0)t+=abs(id(bank_a_2_power).state);
       if(id(bank_a_3_power).state<0)t+=abs(id(bank_a_3_power).state);
       if(id(bank_b_1_power).state<0)t+=abs(id(bank_b_1_power).state);
       if(id(bank_b_2_power).state<0)t+=abs(id(bank_b_2_power).state);
       if(id(bank_b_3_power).state<0)t+=abs(id(bank_b_3_power).state);
-
       return t;
 
   # =====================================================
@@ -1156,13 +1133,10 @@ sensor:
     update_interval: 5s
     lambda: |-
       float t = 0;
-
       if (id(bank_a_total_current).has_state())
         t += abs(id(bank_a_total_current).state);
-
       if (id(bank_b_total_current).has_state())
         t += abs(id(bank_b_total_current).state);
-
       return t;
 
   # =====================================================
@@ -1197,20 +1171,15 @@ sensor:
     entity_category: diagnostic
     unit_of_measurement: "V"
     accuracy_decimals: 2
-
     lambda: |-
-
       float voltage;
-
       voltage =
         (id(adc0_raw).state *
         id(dc_voltage_factor))
         +
         id(dc_voltage_drop);
-
       if (voltage < 0.010)
         voltage = 0;
-
       return voltage;
 
   # -----------------------------------------
@@ -1232,16 +1201,12 @@ sensor:
     entity_category: diagnostic
     unit_of_measurement: "V"
     accuracy_decimals: 3
-
     lambda: |-
-
       float voltage =
         (id(adc1_raw).state *
         id(adc_voltage_factor))
         +
         id(dc_voltage_drop);
-
       if (voltage < 0.65)
         voltage = 0;
-
       return voltage;
