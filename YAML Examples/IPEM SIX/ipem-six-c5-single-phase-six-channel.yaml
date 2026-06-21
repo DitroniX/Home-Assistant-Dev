@@ -48,11 +48,20 @@ esp32:
 
 substitutions:
   author: "DitroniX - Dave Williams"
-  firmware_version: "1.00.02"
+  firmware_version: "1.00.03"
   release_date: "2026-06-20"
   board_name: "IPEM SIX"
   board_mcu: "ESP32-C5"
   board_rev: "1.2606.102"
+
+  # ======================== Current Input Names ===========================
+
+  bank_a_1_name: "CTA-1"
+  bank_a_2_name: "CTA-2"
+  bank_a_3_name: "CTA-3"
+  bank_b_1_name: "CTB-1"
+  bank_b_2_name: "CTB-2"
+  bank_b_3_name: "CTB-3"
 
   # ======================== MAINS CONFIG ===========================
   line_frequency: "50Hz" # Change to "60Hz" for US/Canada/etc.
@@ -76,7 +85,7 @@ substitutions:
   # ===============================================================
 
   # ========================= MISC ================================
-  tmp102_name: "Board Temperature"
+  tmp102_name: "Temperature"
   tmp102_update_interval: 30s
   # ===============================================================
 
@@ -86,7 +95,7 @@ substitutions:
 
 api:
   encryption:
-    key: "xxxx="
+    key: "xxxx"
 
 ota:
   - platform: esphome
@@ -153,25 +162,19 @@ globals:
     type: float
     initial_value: "0.54"
 
-# =====================================================
-# HEARTBEAT
-# =====================================================
-
+################################## LIGHT ##################################
 light:
+  # =====================================================
+  # HEARTBEAT
+  # =====================================================
+
   - platform: esp32_rmt_led_strip
-
     id: heartbeat_led
-
     # name: "Heartbeat LED"
-
     pin: GPIO27
-
     num_leds: 1
-
     chipset: WS2812
-
     rgb_order: GRB
-
     effects:
       - addressable_lambda:
           name: "Green Heartbeat"
@@ -201,17 +204,14 @@ light:
               step = 0;
 
 ################################## NUMBER ##################################
-# =====================================================
-# USER ADJUSTMENTS
-# =====================================================
-
 number:
+  # =====================================================
+  # USER ADJUSTMENTS
+  # =====================================================
+
   - platform: template
-
-    name: "IPEM SIX CT Activity Threshold"
-
+    name: "CT Activity Threshold"
     id: ct_activity_threshold
-
     min_value: 0.100
     max_value: 5.00
     step: 0.100
@@ -221,10 +221,8 @@ number:
     initial_value: 0.100
 
   - platform: template
-
-    name: "IPEM SIX High Load Threshold"
+    name: "High Load Threshold"
     id: high_load_threshold
-
     min_value: 1
     max_value: 100
     step: 1
@@ -232,6 +230,9 @@ number:
     optimistic: true
     restore_value: true
     initial_value: 10
+
+################################## TEXT ##################################
+text:
 
 ################################## TEXT SENSOR ##################################
 
@@ -307,7 +308,7 @@ text_sensor:
       return {"${gain_pga_baseline}"};
 
   - platform: template
-    name: "Phases"
+    name: "Current Phase Voltage"
     icon: mdi:current-ac
     entity_category: diagnostic
     update_interval: 60s
@@ -336,77 +337,33 @@ text_sensor:
     lambda: |-
       return {"${current_type}"};
 
-  # =====================================================
-  # IPEM SIX CHANNEL METADATA
-  # =====================================================
-
   - platform: template
-    name: "Bank A Channel 1 Description"
-    id: bank_a_1_description
+    name: "Product"
     icon: mdi:information
-    lambda: |-
-      return {"Kitchen"};
-
-  - platform: template
-    name: "Bank A Channel 2 Description"
-    id: bank_a_2_description
-    icon: mdi:information
-    lambda: |-
-      return {"EV Charger"};
-
-  - platform: template
-    name: "Bank A Channel 3 Description"
-    id: bank_a_3_description
-    icon: mdi:information
-    lambda: |-
-      return {"Solar Inverter"};
-
-  - platform: template
-    name: "Bank B Channel 1 Description"
-    id: bank_b_1_description
-    icon: mdi:information
-    lambda: |-
-      return {"Heat Pump"};
-
-  - platform: template
-    name: "Bank B Channel 2 Description"
-    id: bank_b_2_description
-    icon: mdi:information
-    lambda: |-
-      return {"Workshop"};
-
-  - platform: template
-    name: "Bank B Channel 3 Description"
-    id: bank_b_3_description
-    icon: mdi:information
-    lambda: |-
-      return {"Ring"};
-
-  - platform: template
-    name: "IPEM SIX Product"
-    icon: mdi:information
-
+    entity_category: diagnostic
+    update_interval: 60s
     lambda: |-
       return {"Professional Energy Monitor"};
 
   - platform: template
-    name: "IPEM SIX Hardware"
+    name: "Hardware"
+    entity_category: diagnostic
     icon: mdi:information
-
+    update_interval: 60s
     lambda: |-
-
       return {"ESP32-C5 Dual ATM90E32"};
 
   - platform: template
-    name: "IPEM SIX Configuration"
-    icon: mdi:information
+    name: "Configuration"
+    icon: mdi:information-outline
+    entity_category: diagnostic
+    update_interval: 60s
 
     lambda: |-
-
       return {"6 Channel Dual Bank CT Meter"};
 
   - platform: template
-    name: "IPEM SIX Status"
+    name: "Mains Voltage Test Status"
     icon: mdi:heart-pulse
 
     lambda: |-
@@ -428,7 +385,7 @@ text_sensor:
     update_interval: 15s
 
   - platform: template
-    name: "IPEM SIX WiFi Signal Quality"
+    name: "WiFi Signal Quality"
     id: wifi_signal_quality
     entity_category: diagnostic
     update_interval: 30s
@@ -468,7 +425,7 @@ text_sensor:
   # High   > 253V
 
   - platform: template
-    name: "IPEM SIX Voltage Status"
+    name: "Mains Voltage Status"
     icon: mdi:flash
     update_interval: 10s
 
@@ -513,7 +470,7 @@ text_sensor:
   # High    >51 Hz
 
   - platform: template
-    name: "IPEM SIX Frequency Status"
+    name: "Mains Frequency Status"
     icon: mdi:waves-arrow-right
     update_interval: 10s
 
@@ -531,7 +488,8 @@ text_sensor:
       return {"Normal"};
 
   - platform: template
-    name: "IPEM SIX Meter Type"
+    name: "Meter Type"
+    entity_category: diagnostic
 
     lambda: |-
       return {"IPEM SIX - Dual ATM90E32 / 6 Channel"};
@@ -541,84 +499,84 @@ text_sensor:
   # =====================================================
 
   - platform: uptime
-    name: "IPEM SIX Uptime"
+    name: "Uptime"
 
   # =====================================================
   # CT CHANNEL ACTIVITY STATUS
   # =====================================================
 
+  # ====================== BANK A STATUS ======================
   - platform: template
-    name: "Bank A 1 Status"
+    id: bank_a_1_status
+    name: "${bank_a_1_name} Status"
     icon: mdi:flash
+    update_interval: 10s
 
     lambda: |-
-
-      if(id(bank_a_1_current).state >= id(high_load_threshold).state)
-        return {"High Load"};
-
-      if(id(bank_a_1_current).state >= id(ct_activity_threshold).state)
-        return {"Active"};
-
+      float current = id(bank_a_1_current).state;
+      if (current >= id(high_load_threshold).state) return {"High Load"};
+      if (current >= id(ct_activity_threshold).state) return {"Active"};
       return {"Idle"};
 
   - platform: template
-    name: "Bank A 2 Status"
+    id: bank_a_2_status
+    name: "${bank_a_2_name} Status"
     icon: mdi:flash
+    update_interval: 10s
 
     lambda: |-
-
-      if(id(bank_a_2_current).state >= id(ct_activity_threshold).state)
-
-        return {"Active"};
-
+      float current = id(bank_a_2_current).state;
+      if (current >= id(high_load_threshold).state) return {"High Load"};
+      if (current >= id(ct_activity_threshold).state) return {"Active"};
       return {"Idle"};
 
   - platform: template
-    name: "Bank A 3 Status"
+    id: bank_a_3_status
+    name: "${bank_a_3_name} Status"
     icon: mdi:flash
+    update_interval: 10s
 
     lambda: |-
+      float current = id(bank_a_3_current).state;
+      if (current >= id(high_load_threshold).state) return {"High Load"};
+      if (current >= id(ct_activity_threshold).state) return {"Active"};
+      return {"Idle"};
 
-      if(id(bank_a_3_current).state >= id(ct_activity_threshold).state)
+  # ====================== BANK B STATUS ======================
+  - platform: template
+    id: bank_b_1_status
+    name: "${bank_b_1_name} Status"
+    icon: mdi:flash
+    update_interval: 10s
 
-        return {"Active"};
-
+    lambda: |-
+      float current = id(bank_b_1_current).state;
+      if (current >= id(high_load_threshold).state) return {"High Load"};
+      if (current >= id(ct_activity_threshold).state) return {"Active"};
       return {"Idle"};
 
   - platform: template
-    name: "Bank B 1 Status"
+    id: bank_b_2_status
+    name: "${bank_b_2_name} Status"
     icon: mdi:flash
+    update_interval: 10s
 
     lambda: |-
-
-      if(id(bank_b_1_current).state >= id(ct_activity_threshold).state)
-
-        return {"Active"};
-
+      float current = id(bank_b_2_current).state;
+      if (current >= id(high_load_threshold).state) return {"High Load"};
+      if (current >= id(ct_activity_threshold).state) return {"Active"};
       return {"Idle"};
 
   - platform: template
-    name: "Bank B 2 Status"
+    id: bank_b_3_status
+    name: "${bank_b_3_name} Status"
     icon: mdi:flash
+    update_interval: 10s
 
     lambda: |-
-
-      if(id(bank_b_2_current).state >= id(ct_activity_threshold).state)
-
-        return {"Active"};
-
-      return {"Idle"};
-
-  - platform: template
-    name: "Bank B 3 Status"
-    icon: mdi:flash
-
-    lambda: |-
-
-      if(id(bank_b_3_current).state >= id(ct_activity_threshold).state)
-
-        return {"Active"};
-
+      float current = id(bank_b_3_current).state;
+      if (current >= id(high_load_threshold).state) return {"High Load"};
+      if (current >= id(ct_activity_threshold).state) return {"Active"};
       return {"Idle"};
 
   - platform: template
@@ -630,7 +588,11 @@ text_sensor:
       if (t < 0)   return {"Very Cold"};
       if (t < 15)  return {"Cold"};
       if (t < 30)  return {"Normal"};
+      if (t < 30)  return {"Normal"};
+      if (t < 36)  return {"Quiet Warm"};      
       if (t < 45)  return {"Warm"};
+      if (t < 55)  return {"Hot"};      
+      if (t < 65)  return {"Very Hot"};      
       return {"Hot"};
     update_interval: 30s
 
@@ -650,6 +612,7 @@ sensor:
     accuracy_decimals: 2
     device_class: "temperature"
     state_class: "measurement"
+    entity_category: diagnostic
     unit_of_measurement: "°C"
     icon: "mdi:thermometer"
     filters:
@@ -657,20 +620,19 @@ sensor:
           window_size: 5
           send_every: 3
 
-  - platform: tmp102
+  - platform: template
     name: "${tmp102_name} °F"
     id: tmp102_temp_f
-    i2c_id: i2c_bus
-    address: 0x4A
-    update_interval: ${tmp102_update_interval}
-    accuracy_decimals: 1
-    device_class: "temperature"
+    # device_class: "temperature"
     state_class: "measurement"
+    entity_category: diagnostic
     unit_of_measurement: "°F"
+    update_interval: ${tmp102_update_interval}
+    accuracy_decimals: 2
     icon: "mdi:thermometer"
+    lambda: |-
+      return (id(tmp102_temp_c).state * 9.0 / 5.0) + 32.0;
     filters:
-      - lambda: |-
-          return x * 1.8 + 32.0;
       - sliding_window_moving_average:
           window_size: 5
           send_every: 3
@@ -690,33 +652,33 @@ sensor:
 
     phase_a:
       voltage:
-        name: "IPEM SIX Mains Voltage"
+        name: "Mains Voltage"
         id: mains_voltage
 
       current:
-        name: "Bank A 1 Current"
+        name: "${bank_a_1_name} Current"
         id: bank_a_1_current
 
       power:
-        name: "Bank A 1 Power"
+        name: "${bank_a_1_name} Power"
         id: bank_a_1_power
 
       reactive_power:
-        name: "Bank A 1 Reactive Power"
+        name: "${bank_a_1_name} Reactive Power"
 
       power_factor:
-        name: "Bank A 1 Power Factor"
+        name: "${bank_a_1_name} Power Factor"
 
       gain_voltage: ${gain_voltage_baseline}
       gain_ct: ${gain_current_baseline}
 
     phase_b:
       current:
-        name: "Bank A 2 Current"
+        name: "${bank_a_2_name} Current"
         id: bank_a_2_current
 
       power:
-        name: "Bank A 2 Power"
+        name: "${bank_a_2_name} Power"
         id: bank_a_2_power
 
       gain_voltage: ${gain_voltage_baseline}
@@ -724,18 +686,18 @@ sensor:
 
     phase_c:
       current:
-        name: "Bank A 3 Current"
+        name: "${bank_a_3_name} Current"
         id: bank_a_3_current
 
       power:
-        name: "Bank A 3 Power"
+        name: "${bank_a_3_name} Power"
         id: bank_a_3_power
 
       gain_voltage: ${gain_voltage_baseline}
       gain_ct: ${gain_current_baseline}
 
     frequency:
-      name: "IPEM SIX Frequency"
+      name: "Mains Frequency"
       id: mains_frequency
 
     chip_temperature:
@@ -758,11 +720,11 @@ sensor:
 
     phase_a:
       current:
-        name: "Bank B 1 Current"
+        name: "${bank_b_1_name} Current"
         id: bank_b_1_current
 
       power:
-        name: "Bank B 1 Power"
+        name: "${bank_b_1_name} Power"
         id: bank_b_1_power
 
       gain_voltage: ${gain_voltage_baseline}
@@ -770,11 +732,11 @@ sensor:
 
     phase_b:
       current:
-        name: "Bank B 2 Current"
+        name: "${bank_b_2_name} Current"
         id: bank_b_2_current
 
       power:
-        name: "Bank B 2 Power"
+        name: "${bank_b_2_name} Power"
         id: bank_b_2_power
 
       gain_voltage: ${gain_voltage_baseline}
@@ -782,11 +744,11 @@ sensor:
 
     phase_c:
       current:
-        name: "Bank B 3 Current"
+        name: "${bank_b_3_name} Current"
         id: bank_b_3_current
 
       power:
-        name: "Bank B 3 Power"
+        name: "${bank_b_3_name} Power"
         id: bank_b_3_power
 
       gain_voltage: ${gain_voltage_baseline}
@@ -867,7 +829,7 @@ sensor:
     state_class: total_increasing
 
   - platform: template
-    name: "Bank A 1 Import Power"
+    name: "${bank_a_1_name} Import Power"
     id: bank_a_1_import_power
     unit_of_measurement: W
     device_class: power
@@ -880,7 +842,7 @@ sensor:
     update_interval: 10s
 
   - platform: template
-    name: "Bank A 2 Import Power"
+    name: "${bank_a_2_name} Import Power"
     id: bank_a_2_import_power
     unit_of_measurement: W
     device_class: power
@@ -893,7 +855,7 @@ sensor:
     update_interval: 10s
 
   - platform: template
-    name: "Bank A 3 Import Power"
+    name: "${bank_a_3_name} Import Power"
     id: bank_a_3_import_power
     unit_of_measurement: W
     device_class: power
@@ -906,7 +868,7 @@ sensor:
     update_interval: 10s
 
   - platform: integration
-    name: "Bank A 1 Energy"
+    name: "${bank_a_1_name} Energy"
     sensor: bank_a_1_import_power
     time_unit: h
     integration_method: trapezoid
@@ -915,7 +877,7 @@ sensor:
     state_class: total_increasing
 
   - platform: integration
-    name: "Bank A 2 Energy"
+    name: "${bank_a_2_name} Energy"
     sensor: bank_a_2_import_power
     time_unit: h
     integration_method: trapezoid
@@ -924,7 +886,7 @@ sensor:
     state_class: total_increasing
 
   - platform: integration
-    name: "Bank A 3 Energy"
+    name: "${bank_a_3_name} Energy"
     sensor: bank_a_3_import_power
     time_unit: h
     integration_method: trapezoid
@@ -933,7 +895,7 @@ sensor:
     state_class: total_increasing
 
   - platform: integration
-    name: "Bank B 1 Energy"
+    name: "${bank_b_1_name} Energy"
     sensor: bank_b_1_import_power
     time_unit: h
     integration_method: trapezoid
@@ -942,7 +904,7 @@ sensor:
     state_class: total_increasing
 
   - platform: integration
-    name: "Bank B 2 Energy"
+    name: "${bank_b_2_name} Energy"
     sensor: bank_b_2_import_power
     time_unit: h
     integration_method: trapezoid
@@ -951,7 +913,7 @@ sensor:
     state_class: total_increasing
 
   - platform: integration
-    name: "Bank B 3 Energy"
+    name: "${bank_b_3_name} Energy"
     sensor: bank_b_3_import_power
     time_unit: h
     integration_method: trapezoid
@@ -973,7 +935,7 @@ sensor:
     state_class: total_increasing
 
   - platform: template
-    name: "Bank B 1 Import Power"
+    name: "${bank_b_1_name} Import Power"
     id: bank_b_1_import_power
     unit_of_measurement: W
     device_class: power
@@ -986,7 +948,7 @@ sensor:
     update_interval: 10s
 
   - platform: template
-    name: "Bank B 2 Import Power"
+    name: "${bank_b_2_name} Import Power"
     id: bank_b_2_import_power
     unit_of_measurement: W
     device_class: power
@@ -999,7 +961,7 @@ sensor:
     update_interval: 10s
 
   - platform: template
-    name: "Bank B 3 Import Power"
+    name: "${bank_b_3_name} Import Power"
     id: bank_b_3_import_power
     unit_of_measurement: W
     device_class: power
@@ -1083,7 +1045,7 @@ sensor:
   # TOTAL POWER
   # =====================================================
   - platform: template
-    name: "IPEM SIX Total Power"
+    name: "Total Power"
     id: total_power
     unit_of_measurement: W
     device_class: power
@@ -1107,7 +1069,7 @@ sensor:
   # =====================================================
 
   - platform: template
-    name: "IPEM SIX Net Power"
+    name: "Net Power"
     id: ipem_net_power
     unit_of_measurement: W
     device_class: power
@@ -1125,7 +1087,7 @@ sensor:
   # =====================================================
 
   - platform: template
-    name: "IPEM SIX Import Power"
+    name: "Import Power"
     id: import_power
     unit_of_measurement: W
     device_class: power
@@ -1144,7 +1106,7 @@ sensor:
       return t;
 
   - platform: template
-    name: "IPEM SIX Export Power"
+    name: "Export Power"
     id: export_power
     unit_of_measurement: W
     device_class: power
@@ -1168,7 +1130,7 @@ sensor:
 
   - platform: integration
 
-    name: "IPEM SIX Import Energy"
+    name: "Import Energy"
     sensor: import_power
     time_unit: h
     integration_method: trapezoid
@@ -1177,7 +1139,7 @@ sensor:
     state_class: total_increasing
 
   - platform: integration
-    name: "IPEM SIX Export Energy"
+    name: "Export Energy"
     sensor: export_power
     time_unit: h
     integration_method: trapezoid
@@ -1186,7 +1148,7 @@ sensor:
     state_class: total_increasing
 
   - platform: template
-    name: "IPEM SIX Total Current"
+    name: "Total Current"
     id: total_current
     unit_of_measurement: A
     device_class: current
@@ -1208,7 +1170,7 @@ sensor:
   # =====================================================
 
   - platform: wifi_signal
-    name: "IPEM SIX WiFi Signal"
+    name: "WiFi Signal"
     id: wifi_signal_db
     unit_of_measurement: "dBm"
     device_class: signal_strength
@@ -1216,9 +1178,9 @@ sensor:
     entity_category: diagnostic
     update_interval: 30s
 
-  # -------------------------
-  # ADC0 - VDC Input
-  # -------------------------
+  # --------------------------------------
+  # ADC0 - ADC Scaled Voltage from VDC
+  # --------------------------------------
 
   - platform: ads1115
     multiplexer: A0_GND
@@ -1231,7 +1193,8 @@ sensor:
           send_every: 50
 
   - platform: template
-    name: "IPEM SIX ADC Scaled Voltage VDC"
+    name: "ADC Scaled Voltage VDC"
+    entity_category: diagnostic
     unit_of_measurement: "V"
     accuracy_decimals: 2
 
@@ -1250,9 +1213,9 @@ sensor:
 
       return voltage;
 
-  # -------------------------
-  # ADC1
-  # -------------------------
+  # -----------------------------------------
+  # ADC1 - ADC Scaled Voltage from ADC1 Input
+  # -----------------------------------------
 
   - platform: ads1115
     multiplexer: A1_GND
@@ -1265,7 +1228,8 @@ sensor:
           send_every: 50
 
   - platform: template
-    name: "IPEM SIX ADC Scaled Voltage ADC1"
+    name: "ADC Scaled Voltage ADC1"
+    entity_category: diagnostic
     unit_of_measurement: "V"
     accuracy_decimals: 3
 
