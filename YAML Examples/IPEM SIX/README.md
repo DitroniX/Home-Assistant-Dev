@@ -33,9 +33,9 @@ Now the code has been released and tested as a single phase with up to six input
 
 IPEM SIX ESPHome functionality Wish List:
 
-✅ TMP102 Board Ambient Temperature
-✅ Labelling Current Inputs using substitutions
-✅ Prepare for Integrated Options phase
+✅ TMP102 Board Ambient Temperature  
+✅ Labelling Current Inputs using substitutions  
+✅ Prepare for Integrated Options phase  
 * RS485 MODBUS
 * GPIO Control (GPI/PWM)
 * OPTO Isolator Output Control
