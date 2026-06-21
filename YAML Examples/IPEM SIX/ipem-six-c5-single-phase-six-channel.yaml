@@ -70,13 +70,13 @@ substitutions:
   # ======================== Current Input Names ===========================
 
   author: "DitroniX - Dave Williams"
-  firmware_version: "1.00.04"
+  firmware_version: "1.00.05"
   release_date: "2026-06-21"
   board_name: "IPEM SIX"
   board_mcu: "ESP32-C5"
   board_rev: "1.2606.102"
 
-  # ======================== Current Input Names ===========================
+  #=============== Current Input Names - Update to your preferred naming convention ===============
 
   bank_a_1_name: "CTA-1"
   bank_a_2_name: "CTA-2"
@@ -90,7 +90,7 @@ substitutions:
   line_frequency: "50Hz"
   line_voltage: "230V"
 
-  # For US/Canada/Western Japan/etc.
+  # For US/Canada/Western Japan (100V)/etc.
   # line_frequency: "60Hz"
   # line_voltage: "110"
   # ===============================================================
@@ -98,6 +98,7 @@ substitutions:
   # ======================== BOARD CONFIG ===========================
   phases_inputs: 1 # Baseline of this version of firmware.  For later use.
   current_inputs: 6 # Baseline of this version of firmware.  For later use.
+  current_banks: 2 # Baseline of this version of firmware.  For later use.
   current_type:
     "CT" # Baseline of this version of firmware.  For later use.  CT / Rogowski
     # ===============================================================
@@ -339,6 +340,12 @@ text_sensor:
     entity_category: diagnostic
     lambda: |-
       return {"${current_inputs}"};
+
+  - platform: template
+    name: "Current Banks"
+    entity_category: diagnostic
+    lambda: |-
+      return {"${current_banks}"};
 
   - platform: template
     name: "Current Type"
