@@ -8,18 +8,20 @@ This is a fully working ESPHome YAML development code for IPEM SIX, for Home Ass
 
 ## Summary
 
-IPEM SIX C5 provides a complete energy monitoring platform:
+**IPEM SIX** C5 provides a complete energy monitoring platform:
 
-✅ 6 CT channels  
-✅ Dual ATM90E32 metering  
+✅ 6 Current channels for either CT Clamps or Rogowski Coil  
+✅ Dual ATM90E32 polyphase metering  
 ✅ Import/export detection  
 ✅ Per-channel energy tracking  
-✅ Home Assistant native integration  
-✅ WiFi diagnostics  
+✅ Per-bank energy tracking  
+✅ Home Assistant native integration (ESPHome)  
+✅ WiFi diagnostics   
 ✅ Health monitoring  
 ✅ Configurable load alerts  
 ✅ OTA updates  
-✅ ESP32-C5 performance platform
+✅ ESP32-C5 performance platform 2.4GHz and 5GHz bands 
+
 
 Designed as a professional-grade residential and small commercial energy monitoring solution.
 
@@ -35,13 +37,15 @@ IPEM SIX ESPHome functionality Wish List:
 
 ✅ TMP102 Board Ambient Temperature  
 ✅ Labelling Current Inputs using substitutions  
+✅ ADC Integration  
 ✅ Prepare for Integrated Options phase  
+✅ Code housekeeping  
 * RS485 MODBUS
 * GPIO Control (GPI/PWM)
 * OPTO Isolator Output Control
 * OLED Support (Display Panel)
 
-Integrated Options:
+Integrated Options Development:
 
 ✅ Single Phase
 * Split Phase
