@@ -99,17 +99,26 @@ substitutions:
   # ======================== About ===========================
 
   author: "DitroniX - Dave Williams"
-  firmware_version: "1.00.02"
-  release_date: "2026-06-21"
+  firmware_version: "1.00.03"
+  release_date: "2026-06-22"
   board_name: "WREN C5"
   board_mcu: "ESP32-C5"
   board_rev: "1.2606.104"
 
   # ======================== Config ===========================
 
-  board_location: "Lounge"
+  board_Initial_location: "Lounge"
+
   voltage_low: 3.00
   voltage_high: 48.0
+
+  travel_time_min: "1"
+  travel_time_max: "60"
+  travel_time_step: "1"
+
+  open_travel_time_default: "12"
+  preset_position_time_default: "6"
+  close_travel_time_default: "11"
 
 ################################## SETUP ##################################
 
@@ -146,108 +155,214 @@ output:
     pin: GPIO27
     id: blue_led
 
-################################## LIGHT ##################################
+################################## LIGHT ######################################
 light:
   - platform: binary
     id: heartbeat
     output: blue_led
 
+################################## NUMBER ######################################
+number:
+  - platform: template
+    id: open_travel_time
+    name: "Open Travel Time"
+    entity_category: config
+    icon: mdi:arrow-expand-horizontal
+    optimistic: true
+    restore_value: true
+    min_value: ${travel_time_min}
+    max_value: ${travel_time_max}
+    step: ${travel_time_step}
+    unit_of_measurement: "s"
+    initial_value: ${open_travel_time_default}
+
+  - platform: template
+    id: preset_position_time
+    name: "Preset Position Time"
+    entity_category: config
+    icon: mdi:seat-recline-extra
+    optimistic: true
+    restore_value: true
+    min_value: ${travel_time_min}
+    max_value: ${travel_time_max}
+    step: ${travel_time_step}
+    unit_of_measurement: "s"
+    initial_value: ${preset_position_time_default}
+    set_action:
+      - lambda: |-
+          id(preset_position_time).publish_state(x);
+          id(preset_position_time_diag).publish_state(x);
+
+  - platform: template
+    id: close_travel_time
+    name: "Close Travel Time"
+    entity_category: config
+    icon: mdi:arrow-collapse-horizontal
+    optimistic: true
+    restore_value: true
+    min_value: ${travel_time_min}
+    max_value: ${travel_time_max}
+    step: ${travel_time_step}
+    unit_of_measurement: "s"
+    initial_value: ${close_travel_time_default}
+
+################################## BUTTON ######################################
+button:
+  - platform: template
+    name: "Reset Travel Times"
+    id: reset_travel_times
+    entity_category: config
+    icon: mdi:restore
+    on_press:
+      - lambda: |-
+          id(open_travel_time).publish_state(${open_travel_time_default});
+          id(preset_position_time).publish_state(${preset_position_time_default});
+          id(close_travel_time).publish_state(${close_travel_time_default});
+
+          ESP_LOGI(
+            "CONFIG",
+            "Travel times restored to defaults."
+          );
+
+################################## TEXT ######################################
+text:
+  - platform: template
+    id: board_location
+    name: "Board Location"
+    mode: TEXT
+    max_length: 32
+    restore_value: true
+    optimistic: true
+    entity_category: config
+    icon: mdi:map-marker
+
+    initial_value: "${board_Initial_location}"
+
+    set_action:
+      - lambda: |-
+          id(board_location).publish_state(x);
+
 ################################## TEXT SENSOR ##################################
 
 text_sensor:
-  # =====================================================
-  # WREN C5 FIRMWARE METADATA
-  # =====================================================
+  - platform: template
+    id: board_location_diagnostic
+    name: "Board Location"
+    entity_category: diagnostic
+    icon: mdi:map-marker
+
+  - platform: version
+    id: esphome_version
+    name: "ESPHome Version"
+    entity_category: diagnostic
+    icon: mdi:tag
+    hide_timestamp: true
+    hide_hash: true
 
   - platform: template
     name: "Author"
     entity_category: diagnostic
+    icon: mdi:account
     lambda: |-
       return {"${author}"};
 
   - platform: template
     name: "Firmware Version"
     entity_category: diagnostic
+    icon: mdi:application-cog
     lambda: |-
       return {"${firmware_version}"};
 
   - platform: template
     name: "Release Date"
     entity_category: diagnostic
+    icon: mdi:calendar
     lambda: |-
       return {"${release_date}"};
 
   - platform: template
     name: "Board Name"
     entity_category: diagnostic
+    icon: mdi:developer-board
     lambda: |-
       return {"${board_name}"};
 
   - platform: template
     name: "Board MCU"
     entity_category: diagnostic
+    icon: mdi:cpu-64-bit
     lambda: |-
       return {"${board_mcu}"};
 
   - platform: template
-    name: "Board Build"
+    name: "Board Revision"
     entity_category: diagnostic
+    icon: mdi:memory
     lambda: |-
       return {"${board_rev}"};
 
   - platform: template
-    name: "Board Location"
-    entity_category: diagnostic
-    icon: mdi:information
-    update_interval: 60s
-    lambda: |-
-      return {"${board_location}"};
-
-  - platform: template
     name: "Product"
-    icon: mdi:information
     entity_category: diagnostic
-    update_interval: 60s
+    icon: mdi:package-variant-closed
     lambda: |-
       return {"Professional Energy Monitor"};
 
   - platform: template
     name: "Hardware"
     entity_category: diagnostic
-    icon: mdi:information
-    update_interval: 60s
+    icon: mdi:chip
     lambda: |-
       return {"ESP32-C5 Dual ATM90E32"};
 
   - platform: template
-    name: "WiFi Signal Quality"
     id: wifi_signal_quality
+    name: "WiFi Signal Quality"
     entity_category: diagnostic
+    icon: mdi:wifi
     update_interval: 30s
     lambda: |-
       if (!id(wifi_signal_db).has_state()) {
         return {"No Signal"};
       }
 
-      int rssi = abs((int)id(wifi_signal_db).state);
+      int rssi = abs((int) id(wifi_signal_db).state);
 
       if (rssi <= 30) {
-        return {"Signal Very Strong"};
+        return {"Very Strong"};
       } else if (rssi <= 50) {
-        return {"Signal Excellent"};
+        return {"Excellent"};
       } else if (rssi <= 60) {
-        return {"Signal Healthy"};
+        return {"Healthy"};
       } else if (rssi <= 70) {
-        return {"Signal Very Good"};
+        return {"Very Good"};
       } else if (rssi <= 80) {
-        return {"Signal Good"};
+        return {"Good"};
       } else if (rssi <= 90) {
-        return {"Signal Poor - Try Moving Position"};
+        return {"Poor - Reposition AP"};
       } else if (rssi <= 100) {
-        return {"Signal Very Low - Move Position"};
-      } else {
-        return {"No Signal"};
+        return {"Very Low - Move AP"};
       }
+
+      return {"No Signal"};
+
+  - platform: template
+    name: "Travel Configuration"
+    entity_category: diagnostic
+    icon: mdi:clipboard-check
+
+    lambda: |-
+      float open = id(open_travel_time).state;
+      float preset = id(preset_position_time).state;
+      float close = id(close_travel_time).state;
+
+      if (preset > open)
+        return {"Invalid - Preset exceeds Open"};
+
+      if (preset < close)
+        return {"Invalid - Preset below Close"};
+
+      return {"Valid"};
 
   # =====================================================
   # VOLTAGE STATUS AND LOG
@@ -380,6 +495,36 @@ binary_sensor:
 
 ################################## SENSOR ##################################
 sensor:
+  - platform: template
+    id: open_travel_time_diag
+    name: " Open Time"
+    entity_category: diagnostic
+    icon: mdi:arrow-expand-horizontal
+    unit_of_measurement: "s"
+    accuracy_decimals: 0
+    lambda: |-
+      return id(open_travel_time).state;
+
+  - platform: template
+    id: preset_position_time_diag
+    name: "Travel Preset Time"
+    entity_category: diagnostic
+    icon: mdi:seat-recline-extra
+    unit_of_measurement: "s"
+    accuracy_decimals: 0
+    lambda: |-
+      return id(preset_position_time).state;
+
+  - platform: template
+    id: close_travel_time_diag
+    name: "Travel Close Time"
+    entity_category: diagnostic
+    icon: mdi:arrow-collapse-horizontal
+    unit_of_measurement: "s"
+    accuracy_decimals: 0
+    lambda: |-
+      return id(close_travel_time).state;
+
   - platform: adc
     id: supply_voltage
     pin: GPIO4
