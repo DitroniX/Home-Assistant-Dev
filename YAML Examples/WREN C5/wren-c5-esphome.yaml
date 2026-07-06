@@ -35,8 +35,9 @@
 # This code has expanded to become an all encompassing ESPHome applicaition and is a fully working baseline.
 
 esphome:
-  name: wren-c5
+  name: wrenc5
   friendly_name: WREN C5
+  name_add_mac_suffix: true
 
   on_boot:
     priority: 800
@@ -56,6 +57,12 @@ esphome:
             "tca",
             "TCA6408A initialized"
           );
+
+          // Publish restored positions to sliders on boot
+          id(motor_1_slider).publish_state(id(motor1_pos));
+          id(motor_2_slider).publish_state(id(motor2_pos));
+          id(motor1_target) = id(motor1_pos);
+          id(motor2_target) = id(motor2_pos);
 
       - delay: 500ms
 
@@ -80,6 +87,7 @@ esp32:
 api:
   encryption:
     key: !secret wren_c5__encryption_key
+
 ota:
   - platform: esphome
     password: !secret wren_c5__ota_password
@@ -107,8 +115,6 @@ substitutions:
 
   # ======================== Config ===========================
 
-  board_Initial_location: "Lounge"
-
   voltage_low: 3.00
   voltage_high: 48.0
 
@@ -116,9 +122,8 @@ substitutions:
   travel_time_max: "60"
   travel_time_step: "1"
 
-  open_travel_time_default: "12"
-  preset_position_time_default: "6"
-  close_travel_time_default: "11"
+  motor1_travel_time_default: "12"
+  motor2_travel_time_default: "12"
 
 ################################## SETUP ##################################
 
@@ -130,7 +135,7 @@ i2c:
   sda: GPIO2
   scl: GPIO3
 
-  scan: true
+  scan: false
 
 globals:
   - id: fault_active
@@ -142,6 +147,76 @@ globals:
     type: uint8_t
     restore_value: no
     initial_value: "0"
+
+  - id: motor1_pos
+    type: float
+    restore_value: yes
+    initial_value: "0.0"
+
+  - id: motor1_target
+    type: float
+    restore_value: yes
+    initial_value: "0.0"
+
+  - id: motor1_overshoot_cnt
+    type: int
+    restore_value: no
+    initial_value: "0"
+
+  - id: motor1_is_overshooting
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
+  - id: motor1_last_publish
+    type: uint32_t
+    restore_value: no
+    initial_value: "0"
+
+  - id: motor1_was_active
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
+  - id: motor2_pos
+    type: float
+    restore_value: yes
+    initial_value: "0.0"
+
+  - id: motor2_target
+    type: float
+    restore_value: yes
+    initial_value: "0.0"
+
+  - id: motor2_overshoot_cnt
+    type: int
+    restore_value: no
+    initial_value: "0"
+
+  - id: motor2_is_overshooting
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
+  - id: motor2_last_publish
+    type: uint32_t
+    restore_value: no
+    initial_value: "0"
+
+  - id: motor2_was_active
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
+  - id: motor1_moving_physically
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
+  - id: motor2_moving_physically
+    type: bool
+    restore_value: no
+    initial_value: "false"
 
 ################################## SWITCH ##################################
 switch:
@@ -164,93 +239,64 @@ light:
 ################################## NUMBER ######################################
 number:
   - platform: template
-    id: open_travel_time
-    name: "Open Travel Time"
+    id: motor_1_travel_time
+    name: "Motor 1 Travel Time"
     entity_category: config
-    icon: mdi:arrow-expand-horizontal
+    icon: mdi:timer
     optimistic: true
     restore_value: true
     min_value: ${travel_time_min}
     max_value: ${travel_time_max}
     step: ${travel_time_step}
     unit_of_measurement: "s"
-    initial_value: ${open_travel_time_default}
+    initial_value: ${motor1_travel_time_default}
 
   - platform: template
-    id: preset_position_time
-    name: "Preset Position Time"
+    id: motor_2_travel_time
+    name: "Motor 2 Travel Time"
     entity_category: config
+    icon: mdi:timer
+    optimistic: true
+    restore_value: true
+    min_value: ${travel_time_min}
+    max_value: ${travel_time_max}
+    step: ${travel_time_step}
+    unit_of_measurement: "s"
+    initial_value: ${motor2_travel_time_default}
+
+  - platform: template
+    name: "Motor 1 Position"
+    id: motor_1_slider
+    min_value: 0
+    max_value: 100
+    step: 1
+    unit_of_measurement: "%"
+    optimistic: true
     icon: mdi:seat-recline-extra
-    optimistic: true
-    restore_value: true
-    min_value: ${travel_time_min}
-    max_value: ${travel_time_max}
-    step: ${travel_time_step}
-    unit_of_measurement: "s"
-    initial_value: ${preset_position_time_default}
     set_action:
       - lambda: |-
-          id(preset_position_time).publish_state(x);
-          id(preset_position_time_diag).publish_state(x);
+          id(motor1_target) = x;
+          ESP_LOGD("motor1", "New target set: %.1f", x);
 
   - platform: template
-    id: close_travel_time
-    name: "Close Travel Time"
-    entity_category: config
-    icon: mdi:arrow-collapse-horizontal
+    name: "Motor 2 Position"
+    id: motor_2_slider
+    min_value: 0
+    max_value: 100
+    step: 1
+    unit_of_measurement: "%"
     optimistic: true
-    restore_value: true
-    min_value: ${travel_time_min}
-    max_value: ${travel_time_max}
-    step: ${travel_time_step}
-    unit_of_measurement: "s"
-    initial_value: ${close_travel_time_default}
-
-################################## BUTTON ######################################
-button:
-  - platform: template
-    name: "Reset Travel Times"
-    id: reset_travel_times
-    entity_category: config
-    icon: mdi:restore
-    on_press:
-      - lambda: |-
-          id(open_travel_time).publish_state(${open_travel_time_default});
-          id(preset_position_time).publish_state(${preset_position_time_default});
-          id(close_travel_time).publish_state(${close_travel_time_default});
-
-          ESP_LOGI(
-            "CONFIG",
-            "Travel times restored to defaults."
-          );
-
-################################## TEXT ######################################
-text:
-  - platform: template
-    id: board_location
-    name: "Board Location"
-    mode: TEXT
-    max_length: 32
-    restore_value: true
-    optimistic: true
-    entity_category: config
-    icon: mdi:map-marker
-
-    initial_value: "${board_Initial_location}"
-
+    icon: mdi:seat-recline-extra
     set_action:
       - lambda: |-
-          id(board_location).publish_state(x);
+          id(motor2_target) = x;
+          ESP_LOGD("motor2", "New target set: %.1f", x);
+
+
 
 ################################## TEXT SENSOR ##################################
 
 text_sensor:
-  - platform: template
-    id: board_location_diagnostic
-    name: "Board Location"
-    entity_category: diagnostic
-    icon: mdi:map-marker
-
   - platform: version
     id: esphome_version
     name: "ESPHome Version"
@@ -258,13 +304,6 @@ text_sensor:
     icon: mdi:tag
     hide_timestamp: true
     hide_hash: true
-
-  - platform: template
-    name: "Author"
-    entity_category: diagnostic
-    icon: mdi:account
-    lambda: |-
-      return {"${author}"};
 
   - platform: template
     name: "Firmware Version"
@@ -281,94 +320,6 @@ text_sensor:
       return {"${release_date}"};
 
   - platform: template
-    name: "Board Name"
-    entity_category: diagnostic
-    icon: mdi:developer-board
-    lambda: |-
-      return {"${board_name}"};
-
-  - platform: template
-    name: "Board MCU"
-    entity_category: diagnostic
-    icon: mdi:cpu-64-bit
-    lambda: |-
-      return {"${board_mcu}"};
-
-  - platform: template
-    name: "Board Revision"
-    entity_category: diagnostic
-    icon: mdi:memory
-    lambda: |-
-      return {"${board_rev}"};
-
-  - platform: template
-    name: "Product"
-    entity_category: diagnostic
-    icon: mdi:package-variant-closed
-    lambda: |-
-      return {"Professional Energy Monitor"};
-
-  - platform: template
-    name: "Hardware"
-    entity_category: diagnostic
-    icon: mdi:chip
-    lambda: |-
-      return {"ESP32-C5 Dual ATM90E32"};
-
-  - platform: template
-    id: wifi_signal_quality
-    name: "WiFi Signal Quality"
-    entity_category: diagnostic
-    icon: mdi:wifi
-    update_interval: 30s
-    lambda: |-
-      if (!id(wifi_signal_db).has_state()) {
-        return {"No Signal"};
-      }
-
-      int rssi = abs((int) id(wifi_signal_db).state);
-
-      if (rssi <= 30) {
-        return {"Very Strong"};
-      } else if (rssi <= 50) {
-        return {"Excellent"};
-      } else if (rssi <= 60) {
-        return {"Healthy"};
-      } else if (rssi <= 70) {
-        return {"Very Good"};
-      } else if (rssi <= 80) {
-        return {"Good"};
-      } else if (rssi <= 90) {
-        return {"Poor - Reposition AP"};
-      } else if (rssi <= 100) {
-        return {"Very Low - Move AP"};
-      }
-
-      return {"No Signal"};
-
-  - platform: template
-    name: "Travel Configuration"
-    entity_category: diagnostic
-    icon: mdi:clipboard-check
-
-    lambda: |-
-      float open = id(open_travel_time).state;
-      float preset = id(preset_position_time).state;
-      float close = id(close_travel_time).state;
-
-      if (preset > open)
-        return {"Invalid - Preset exceeds Open"};
-
-      if (preset < close)
-        return {"Invalid - Preset below Close"};
-
-      return {"Valid"};
-
-  # =====================================================
-  # VOLTAGE STATUS AND LOG
-  # =====================================================
-
-  - platform: template
     name: "Supply Status"
     id: supply_status
     icon: mdi:power-plug
@@ -379,16 +330,6 @@ text_sensor:
 
       constexpr float VOLTAGE_LOW  = ${voltage_low};
       constexpr float VOLTAGE_HIGH = ${voltage_high};      
-
-      // Developer. Only enable for PCB 1.2606.104 and above, as this value is now taken from +VBUS rather than P24V_DVR
-      // if (v >= VOLTAGE_LOW && v <= 5.5f) {
-      //   ESP_LOGI(
-      //    "POWER",
-      //     "USB Power Detected - Supply Voltage %.2fV",
-      //    v
-      //   );
-      //   return {"USB Powered"};
-      // }
 
       if (v >= 5.5f && v <= 10.0f) {
         ESP_LOGI(
@@ -479,7 +420,7 @@ binary_sensor:
 
   - platform: gpio
     id: en1
-    name: "EN1 Feedback"
+    name: "Motor 1 Driver Status"
     pin:
       number: GPIO5
       mode:
@@ -487,7 +428,7 @@ binary_sensor:
 
   - platform: gpio
     id: en2
-    name: "EN2 Feedback"
+    name: "Motor 2 Driver Status"
     pin:
       number: GPIO6
       mode:
@@ -495,36 +436,6 @@ binary_sensor:
 
 ################################## SENSOR ##################################
 sensor:
-  - platform: template
-    id: open_travel_time_diag
-    name: " Open Time"
-    entity_category: diagnostic
-    icon: mdi:arrow-expand-horizontal
-    unit_of_measurement: "s"
-    accuracy_decimals: 0
-    lambda: |-
-      return id(open_travel_time).state;
-
-  - platform: template
-    id: preset_position_time_diag
-    name: "Travel Preset Time"
-    entity_category: diagnostic
-    icon: mdi:seat-recline-extra
-    unit_of_measurement: "s"
-    accuracy_decimals: 0
-    lambda: |-
-      return id(preset_position_time).state;
-
-  - platform: template
-    id: close_travel_time_diag
-    name: "Travel Close Time"
-    entity_category: diagnostic
-    icon: mdi:arrow-collapse-horizontal
-    unit_of_measurement: "s"
-    accuracy_decimals: 0
-    lambda: |-
-      return id(close_travel_time).state;
-
   - platform: adc
     id: supply_voltage
     pin: GPIO4
@@ -540,10 +451,6 @@ sensor:
     address: 0x4A
     entity_category: diagnostic
     update_interval: 30s
-
-  - platform: wifi_signal
-    name: "WiFi RSSI"
-    update_interval: 60s
 
   - platform: uptime
     name: "Uptime"
@@ -699,40 +606,238 @@ interval:
               return;
           }
 
+          //
+          // MOTOR 1 CONTROL
+          //
+          bool m1_ext = false;
+          bool m1_ret = false;
+
+          bool in1a = id(in_1a).state; // Physical extend
+          bool in1b = id(in_1b).state; // Physical retract
+
+          float travel_time_1 = id(motor_1_travel_time).state;
+          if (travel_time_1 < 1.0f) travel_time_1 = 1.0f;
+
+          // Rate per 10ms interval (as a percentage 0-100)
+          // 10ms is 0.01 seconds. So rate is (100.0 / time) * 0.01 = 1.0 / time.
+          float ext_rate_1 = 1.0f / travel_time_1;
+          float ret_rate_1 = 1.0f / travel_time_1;
+
+          if (in1a && in1b) {
+            // Safety interlock for physical inputs
+            in1a = false;
+            in1b = false;
+          }
+
+          if (in1a) {
+            // Physical button extend
+            id(motor1_is_overshooting) = false;
+            id(motor1_overshoot_cnt) = 0;
+            id(motor1_moving_physically) = true;
+            m1_ext = true;
+            id(motor1_pos) += ext_rate_1;
+            if (id(motor1_pos) > 100.0f) {
+              id(motor1_pos) = 100.0f;
+            }
+            id(motor1_target) = id(motor1_pos);
+          } else if (in1b) {
+            // Physical button retract
+            id(motor1_is_overshooting) = false;
+            id(motor1_overshoot_cnt) = 0;
+            id(motor1_moving_physically) = true;
+            m1_ret = true;
+            id(motor1_pos) -= ret_rate_1;
+            if (id(motor1_pos) < 0.0f) {
+              id(motor1_pos) = 0.0f;
+            }
+            id(motor1_target) = id(motor1_pos);
+          } else if (id(motor1_is_overshooting)) {
+            // Currently in automated overshoot state
+            id(motor1_overshoot_cnt)--;
+            if (id(motor1_overshoot_cnt) <= 0) {
+              id(motor1_is_overshooting) = false;
+              // target has already been clamped to 0 or 100
+              id(motor1_pos) = id(motor1_target);
+            } else {
+              if (id(motor1_target) >= 100.0f) {
+                m1_ext = true;
+              } else if (id(motor1_target) <= 0.0f) {
+                m1_ret = true;
+              }
+            }
+          } else {
+            // Slider-driven target seeking
+            float diff = id(motor1_target) - id(motor1_pos);
+            // Use a tiny threshold to prevent endless jitter
+            if (diff > 0.05f) {
+              m1_ext = true;
+              id(motor1_pos) += ext_rate_1;
+              if (id(motor1_pos) >= id(motor1_target)) {
+                if (id(motor1_target) >= 100.0f) {
+                  // Trigger overshoot at 100%
+                  id(motor1_is_overshooting) = true;
+                  id(motor1_overshoot_cnt) = 150; // 1.5 seconds
+                  id(motor1_pos) = 100.0f;
+                } else {
+                  id(motor1_pos) = id(motor1_target);
+                }
+              }
+            } else if (diff < -0.05f) {
+              m1_ret = true;
+              id(motor1_pos) -= ret_rate_1;
+              if (id(motor1_pos) <= id(motor1_target)) {
+                if (id(motor1_target) <= 0.0f) {
+                  // Trigger overshoot at 0%
+                  id(motor1_is_overshooting) = true;
+                  id(motor1_overshoot_cnt) = 150; // 1.5 seconds
+                  id(motor1_pos) = 0.0f;
+                } else {
+                  id(motor1_pos) = id(motor1_target);
+                }
+              }
+            }
+          }
+
+          // Throttle state publishing to Home Assistant to avoid network spam
+          bool active1 = m1_ext || m1_ret;
+          if (active1) {
+            if (id(motor1_moving_physically)) {
+              uint32_t now = millis();
+              if (now - id(motor1_last_publish) >= 200 || !id(motor1_was_active)) {
+                id(motor_1_slider).publish_state(id(motor1_pos));
+                id(motor1_last_publish) = now;
+              }
+            }
+          } else if (id(motor1_was_active)) {
+            // Just stopped, publish final position
+            id(motor_1_slider).publish_state(id(motor1_pos));
+            id(motor1_last_publish) = millis();
+            id(motor1_moving_physically) = false;
+          }
+          id(motor1_was_active) = active1;
+
+          //
+          // MOTOR 2 CONTROL
+          //
+          bool m2_ext = false;
+          bool m2_ret = false;
+
+          bool in2a = id(in_2a).state; // Physical extend
+          bool in2b = id(in_2b).state; // Physical retract
+
+          float travel_time_2 = id(motor_2_travel_time).state;
+          if (travel_time_2 < 1.0f) travel_time_2 = 1.0f;
+
+          float ext_rate_2 = 1.0f / travel_time_2;
+          float ret_rate_2 = 1.0f / travel_time_2;
+
+          if (in2a && in2b) {
+            in2a = false;
+            in2b = false;
+          }
+
+          if (in2a) {
+            id(motor2_is_overshooting) = false;
+            id(motor2_overshoot_cnt) = 0;
+            id(motor2_moving_physically) = true;
+            m2_ext = true;
+            id(motor2_pos) += ext_rate_2;
+            if (id(motor2_pos) > 100.0f) {
+              id(motor2_pos) = 100.0f;
+            }
+            id(motor2_target) = id(motor2_pos);
+          } else if (in2b) {
+            id(motor2_is_overshooting) = false;
+            id(motor2_overshoot_cnt) = 0;
+            id(motor2_moving_physically) = true;
+            m2_ret = true;
+            id(motor2_pos) -= ret_rate_2;
+            if (id(motor2_pos) < 0.0f) {
+              id(motor2_pos) = 0.0f;
+            }
+            id(motor2_target) = id(motor2_pos);
+          } else if (id(motor2_is_overshooting)) {
+            id(motor2_overshoot_cnt)--;
+            if (id(motor2_overshoot_cnt) <= 0) {
+              id(motor2_is_overshooting) = false;
+              id(motor2_pos) = id(motor2_target);
+            } else {
+              if (id(motor2_target) >= 100.0f) {
+                m2_ext = true;
+              } else if (id(motor2_target) <= 0.0f) {
+                m2_ret = true;
+              }
+            }
+          } else {
+            float diff = id(motor2_target) - id(motor2_pos);
+            if (diff > 0.05f) {
+              m2_ext = true;
+              id(motor2_pos) += ext_rate_2;
+              if (id(motor2_pos) >= id(motor2_target)) {
+                if (id(motor2_target) >= 100.0f) {
+                  id(motor2_is_overshooting) = true;
+                  id(motor2_overshoot_cnt) = 150;
+                  id(motor2_pos) = 100.0f;
+                } else {
+                  id(motor2_pos) = id(motor2_target);
+                }
+              }
+            } else if (diff < -0.05f) {
+              m2_ret = true;
+              id(motor2_pos) -= ret_rate_2;
+              if (id(motor2_pos) <= id(motor2_target)) {
+                if (id(motor2_target) <= 0.0f) {
+                  id(motor2_is_overshooting) = true;
+                  id(motor2_overshoot_cnt) = 150;
+                  id(motor2_pos) = 0.0f;
+                } else {
+                  id(motor2_pos) = id(motor2_target);
+                }
+              }
+            }
+          }
+
+          bool active2 = m2_ext || m2_ret;
+          if (active2) {
+            if (id(motor2_moving_physically)) {
+              uint32_t now = millis();
+              if (now - id(motor2_last_publish) >= 200 || !id(motor2_was_active)) {
+                id(motor_2_slider).publish_state(id(motor2_pos));
+                id(motor2_last_publish) = now;
+              }
+            }
+          } else if (id(motor2_was_active)) {
+            id(motor_2_slider).publish_state(id(motor2_pos));
+            id(motor2_last_publish) = millis();
+            id(motor2_moving_physically) = false;
+          }
+          id(motor2_was_active) = active2;
+
+          //
+          // TCA6408A OUTPUT GENERATION
+          //
           uint8_t output=0;
-          bool m1a=id(in_1a).state;
-          bool m1b=id(in_1b).state;
-          bool m2a=id(in_2a).state;
-          bool m2b=id(in_2b).state;
 
-          bool active =
-              m1a ||
-              m1b ||
-              m2a ||
-              m2b;
-
-          //
-          // BOTH ENABLES TOGETHER
-          //
-
-          if(active)
-          {
+          if (m1_ext || m1_ret) {
             output |= (1<<0); // EN1
+          }
+
+          if (m2_ext || m2_ret) {
             output |= (1<<3); // EN2
           }
 
           // MOTOR 1
-          if(m1a)
+          if(m1_ext)
             output |= (1<<1);
 
-          if(m1b)
+          if(m1_ret)
             output |= (1<<2);
 
           // MOTOR 2
-          if(m2a)
+          if(m2_ext)
             output |= (1<<4);
 
-          if(m2b)
+          if(m2_ret)
             output |= (1<<5);
 
           uint8_t buf[2];
