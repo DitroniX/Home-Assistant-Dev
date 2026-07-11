@@ -52,7 +52,7 @@ static const uint16_t ATM90E36_REGISTER_SPHASETH = 0x3A;  // Startup Power Accum
 static const uint16_t ATM90E36_REGISTER_CSO = 0x3B;       // Checksum 0
 
 /* CALIBRATION REGISTERS */
-static const uint16_t ATM90E36_REGISTER_CALSTART = 0X40;  // Calibration Start Command
+static const uint16_t ATM90E36_REGISTER_CALSTART = 0x40;  // Calibration Start Command
 static const uint16_t ATM90E36_REGISTER_POFFSETA = 0x41;  // A Line Power Offset (P)
 static const uint16_t ATM90E36_REGISTER_QOFFSETA = 0x42;  // A Line Power Offset (Q)
 static const uint16_t ATM90E36_REGISTER_POFFSETB = 0x43;  // B Line Power Offset (P)
@@ -65,20 +65,20 @@ static const uint16_t ATM90E36_REGISTER_PQGAINB = 0x49;   // B Line Calibration 
 static const uint16_t ATM90E36_REGISTER_PHIB = 0x4A;      // B Line Calibration Angle
 static const uint16_t ATM90E36_REGISTER_PQGAINC = 0x4B;   // C Line Calibration Gain
 static const uint16_t ATM90E36_REGISTER_PHIC = 0x4C;      // C Line Calibration Angle
-static const uint16_t ATM90E36_REGISTER_CS1 = 0X4D;       // Checksum 1
+static const uint16_t ATM90E36_REGISTER_CS1 = 0x4D;       // Checksum 1
 
 /* FUNDAMENTAL/HARMONIC ENERGY CALIBRATION REGISTERS */
-static const uint16_t ATM90E36_REGISTER_HARMSTART = 0X50;  // Harmonic Calibration Startup Command
+static const uint16_t ATM90E36_REGISTER_HARMSTART = 0x50;  // Harmonic Calibration Startup Command
 static const uint16_t ATM90E36_REGISTER_POFFSETAF = 0x51;  // A Fund Power Offset (P)
 static const uint16_t ATM90E36_REGISTER_POFFSETBF = 0x52;  // B Fund Power Offset (P)
 static const uint16_t ATM90E36_REGISTER_POFFSETCF = 0x53;  // C Fund Power Offset (P)
 static const uint16_t ATM90E36_REGISTER_PGAINAF = 0x54;    // A Fund Power Gain (P)
 static const uint16_t ATM90E36_REGISTER_PGAINBF = 0x55;    // B Fund Power Gain (P)
 static const uint16_t ATM90E36_REGISTER_PGAINCF = 0x56;    // C Fund Power Gain (P)
-static const uint16_t ATM90E36_REGISTER_CS2 = 0X57;        // Checksum 2
+static const uint16_t ATM90E36_REGISTER_CS2 = 0x57;        // Checksum 2
 
 /* MEASUREMENT CALIBRATION REGISTERS */
-static const uint16_t ATM90E36_REGISTER_ADJSTART = 0X60;  // Measurement Calibration Startup Command
+static const uint16_t ATM90E36_REGISTER_ADJSTART = 0x60;  // Measurement Calibration Startup Command
 static const uint16_t ATM90E36_REGISTER_UGAINA = 0x61;    // A Voltage RMS Gain
 static const uint16_t ATM90E36_REGISTER_IGAINA = 0x62;    // A Current RMS Gain
 static const uint16_t ATM90E36_REGISTER_UOFFSETA = 0x63;  // A Voltage Offset
@@ -93,7 +93,7 @@ static const uint16_t ATM90E36_REGISTER_UOFFSETC = 0x6B;  // C Voltage Offset
 static const uint16_t ATM90E36_REGISTER_IOFFSETC = 0x6C;  // C Current Offset
 static const uint16_t ATM90E36_REGISTER_IGAINN = 0x6D;    // N Current Gain
 static const uint16_t ATM90E36_REGISTER_IOFFSETN = 0x6E;  // N Current Offset
-static const uint16_t ATM90E36_REGISTER_CS3 = 0X6F;       // Checksum 3
+static const uint16_t ATM90E36_REGISTER_CS3 = 0x6F;       // Checksum 3
 
 /* ENERGY REGISTERS */
 static const uint16_t ATM90E36_REGISTER_APENERGYT = 0x80;  // Total Forward Active
@@ -119,13 +119,13 @@ static const uint16_t ATM90E36_REGISTER_SAENERGYT = 0x90;  // Total Apparent Ene
 static const uint16_t ATM90E36_REGISTER_SENERGYA = 0x91;   // A Apparent Energy
 static const uint16_t ATM90E36_REGISTER_SENERGYB = 0x92;   // B Apparent Energy
 static const uint16_t ATM90E36_REGISTER_SENERGYC = 0x93;   // C Apparent Energy
-static const uint16_t ATM90E36_REGISTER_SVENERGYT = 0X94;  // (Vector Sum) Total Apparent Energy
+static const uint16_t ATM90E36_REGISTER_SVENERGYT = 0x94;  // (Vector Sum) Total Apparent Energy
 
-static const uint16_t ATM90E36_REGISTER_ENSTATUS0 = 0X95;  // Metering Status 0
-static const uint16_t ATM90E36_REGISTER_ENSTATUS1 = 0X96;  // Metering Status 1
-///////////////// 0x97	    // Reserved Register 
-static const uint16_t ATM90E36_REGISTER_SVMEANT = 0X98;    // (Vector Sum) Total Apparent Power
-static const uint16_t ATM90E36_REGISTER_SVMEANTLSB = 0X99; // lSB of (Vector Sum) Total Apparent Power
+static const uint16_t ATM90E36_REGISTER_ENSTATUS0 = 0x95;  // Metering Status 0
+static const uint16_t ATM90E36_REGISTER_ENSTATUS1 = 0x96;  // Metering Status 1
+///////////////// 0x97	    // Reserved Register
+static const uint16_t ATM90E36_REGISTER_SVMEANT = 0x98;    // (Vector Sum) Total Apparent Power
+static const uint16_t ATM90E36_REGISTER_SVMEANTLSB = 0x99; // lSB of (Vector Sum) Total Apparent Power
 
 /* FUNDAMENTAL / HARMONIC ENERGY REGISTERS */
 static const uint16_t ATM90E36_REGISTER_APENERGYTF = 0xA0;  // Total Forward Fund. Energy
@@ -191,6 +191,7 @@ static const uint16_t ATM90E36_REGISTER_PMEANH = 0xD5;   // Active Harm. Power R
 static const uint16_t ATM90E36_REGISTER_PMEANAH = 0xD5;  // A Active Harm. Power
 static const uint16_t ATM90E36_REGISTER_PMEANBH = 0xD6;  // B Active Harm. Power
 static const uint16_t ATM90E36_REGISTER_PMEANCH = 0xD7;  // C Active Harm. Power
+static const uint16_t ATM90E36_REGISTER_IRMSN = 0xD8;    // Calculated N RMS Current
 static const uint16_t ATM90E36_REGISTER_URMS = 0xD9;     // RMS Voltage Reg Base
 static const uint16_t ATM90E36_REGISTER_URMSA = 0xD9;    // A RMS Voltage
 static const uint16_t ATM90E36_REGISTER_URMSB = 0xDA;    // B RMS Voltage
@@ -199,7 +200,6 @@ static const uint16_t ATM90E36_REGISTER_IRMS = 0xDD;     // RMS Current Reg Base
 static const uint16_t ATM90E36_REGISTER_IRMSA = 0xDD;    // A RMS Current
 static const uint16_t ATM90E36_REGISTER_IRMSB = 0xDE;    // B RMS Current
 static const uint16_t ATM90E36_REGISTER_IRMSC = 0xDF;    // C RMS Current
-static const uint16_t ATM90E36_REGISTER_IRMSN = 0xD8;    // Calculated N RMS Current
 
 static const uint16_t ATM90E36_REGISTER_PMEANTFLSB = 0xE0;  // Lower Word (Tot. Act. Fund. Power)
 static const uint16_t ATM90E36_REGISTER_PMEANAFLSB = 0xE1;  // Lower Word (A Act. Fund. Power)
@@ -210,12 +210,12 @@ static const uint16_t ATM90E36_REGISTER_PMEANHLSB = 0xE5;   // Lower Word (A Act
 static const uint16_t ATM90E36_REGISTER_PMEANAHLSB = 0xE5;  // Lower Word (A Act. Harm. Power)
 static const uint16_t ATM90E36_REGISTER_PMEANBHLSB = 0xE6;  // Lower Word (B Act. Harm. Power)
 static const uint16_t ATM90E36_REGISTER_PMEANCHLSB = 0xE7;  // Lower Word (C Act. Harm. Power)
-///////////////// 0xE8	    // Reserved Register 
+///////////////// 0xE8	    // Reserved Register
 static const uint16_t ATM90E36_REGISTER_URMSLSB = 0xE9;     // Lower Word RMS Voltage Reg Base
 static const uint16_t ATM90E36_REGISTER_URMSALSB = 0xE9;    // Lower Word (A RMS Voltage)
 static const uint16_t ATM90E36_REGISTER_URMSBLSB = 0xEA;    // Lower Word (B RMS Voltage)
 static const uint16_t ATM90E36_REGISTER_URMSCLSB = 0xEB;    // Lower Word (C RMS Voltage)
-///////////////// 0xEC	    // Reserved Register	
+///////////////// 0xEC	    // Reserved Register
 static const uint16_t ATM90E36_REGISTER_IRMSLSB = 0xED;     // Lower Word RMS Current Reg Base
 static const uint16_t ATM90E36_REGISTER_IRMSALSB = 0xED;    // Lower Word (A RMS Current)
 static const uint16_t ATM90E36_REGISTER_IRMSBLSB = 0xEE;    // Lower Word (B RMS Current)
@@ -228,14 +228,6 @@ static const uint16_t ATM90E36_REGISTER_THDNUC = 0xF3;  // Phase C Voltage THD
 static const uint16_t ATM90E36_REGISTER_THDNIA = 0xF5;  // Phase A Current THD
 static const uint16_t ATM90E36_REGISTER_THDNIB = 0xF6;  // Phase B Current THD
 static const uint16_t ATM90E36_REGISTER_THDNIC = 0xF7;  // Phase C Current THD
-//static const uint16_t ATM90E36_REGISTER_UPEAKA = 0xF1;   // A Voltage Peak
-//static const uint16_t ATM90E36_REGISTER_UPEAKB = 0xF2;   // B Voltage Peak
-//static const uint16_t ATM90E36_REGISTER_UPEAKC = 0xF3;   // C Voltage Peak
-//////////////// 0xF4	    // Reserved Register	
-//static const uint16_t ATM90E36_REGISTER_IPEAK = 0xF5;    // Peak Current Reg Base
-//static const uint16_t ATM90E36_REGISTER_IPEAKA = 0xF5;   // A Current Peak
-//static const uint16_t ATM90E36_REGISTER_IPEAKB = 0xF6;   // B Current Peak
-//static const uint16_t ATM90E36_REGISTER_IPEAKC = 0xF7;   // C Current Peak
 static const uint16_t ATM90E36_REGISTER_FREQ = 0xF8;     // Frequency
 static const uint16_t ATM90E36_REGISTER_PANGLE = 0xF9;   // Mean Phase Angle Reg Base
 static const uint16_t ATM90E36_REGISTER_PANGLEA = 0xF9;  // A Mean Phase Angle
