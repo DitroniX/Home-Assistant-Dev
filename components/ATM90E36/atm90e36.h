@@ -19,7 +19,7 @@ class ATM90E36Component : public PollingComponent,
   static const uint8_t PHASEA = 0;
   static const uint8_t PHASEB = 1;
   static const uint8_t PHASEC = 2;
-  const char *phase_labels[3] = {"A", "B", "C"};  
+  const char *phase_labels[3] = {"A", "B", "C"};
   void loop() override;
   void setup() override;
   void dump_config() override;
@@ -30,6 +30,24 @@ class ATM90E36Component : public PollingComponent,
   void set_power_sensor(int phase, sensor::Sensor *obj) { this->phase_[phase].power_sensor_ = obj; }
   void set_reactive_power_sensor(int phase, sensor::Sensor *obj) { this->phase_[phase].reactive_power_sensor_ = obj; }
   void set_apparent_power_sensor(int phase, sensor::Sensor *obj) { this->phase_[phase].apparent_power_sensor_ = obj; }
+  void set_thd_voltage_a_sensor(sensor::Sensor *thd_voltage_a_sensor) {
+      thd_voltage_a_sensor_ = thd_voltage_a_sensor;
+  }
+  void set_thd_current_a_sensor(sensor::Sensor *thd_current_a_sensor) {
+      thd_current_a_sensor_ = thd_current_a_sensor;
+  }
+  void set_thd_voltage_b_sensor(sensor::Sensor *thd_voltage_b_sensor) {
+      thd_voltage_b_sensor_ = thd_voltage_b_sensor;
+  }
+  void set_thd_current_b_sensor(sensor::Sensor *thd_current_b_sensor) {
+      thd_current_b_sensor_ = thd_current_b_sensor;
+  }
+  void set_thd_voltage_c_sensor(sensor::Sensor *thd_voltage_c_sensor) {
+      thd_voltage_c_sensor_ = thd_voltage_c_sensor;
+  }
+  void set_thd_current_c_sensor(sensor::Sensor *thd_current_c_sensor) {
+      thd_current_c_sensor_ = thd_current_c_sensor;
+  }
   void set_forward_active_energy_sensor(int phase, sensor::Sensor *obj) {
     this->phase_[phase].forward_active_energy_sensor_ = obj;
   }
@@ -120,6 +138,12 @@ class ATM90E36Component : public PollingComponent,
   float get_phase_angle_(uint8_t phase);
   float get_phase_harmonic_active_power_(uint8_t phase);
   float get_phase_peak_current_(uint8_t phase);
+  float get_thd_voltage_a();
+  float get_thd_current_a();
+  float get_thd_voltage_b();
+  float get_thd_current_b();
+  float get_thd_voltage_c();
+  float get_thd_current_c();
   float get_frequency_();
   float get_chip_temperature_();
   bool get_publish_interval_flag_() { return publish_interval_flag_; };
@@ -169,7 +193,7 @@ class ATM90E36Component : public PollingComponent,
     uint32_t cumulative_forward_active_energy_{0};
     uint32_t cumulative_reverse_active_energy_{0};
   } phase_[3];
-  
+
 	union SysStatus0 {
 		uint16_t data;
 		struct {
@@ -191,7 +215,7 @@ class ATM90E36Component : public PollingComponent,
 			bool b15 : 1;
 		} bits;
 	};
-	
+
 	union SysStatus1 {
 		uint16_t data;
 		struct {
@@ -220,6 +244,12 @@ class ATM90E36Component : public PollingComponent,
   std::string cs_summary_;
 
   sensor::Sensor *freq_sensor_{nullptr};
+  sensor::Sensor *thd_voltage_a_sensor_{nullptr};
+  sensor::Sensor *thd_current_a_sensor_{nullptr};
+  sensor::Sensor *thd_voltage_b_sensor_{nullptr};
+  sensor::Sensor *thd_current_b_sensor_{nullptr};
+  sensor::Sensor *thd_voltage_c_sensor_{nullptr};
+  sensor::Sensor *thd_current_c_sensor_{nullptr};
 #ifdef USE_TEXT_SENSOR
   text_sensor::TextSensor *phase_status_text_sensor_{nullptr};
   text_sensor::TextSensor *freq_status_text_sensor_{nullptr};

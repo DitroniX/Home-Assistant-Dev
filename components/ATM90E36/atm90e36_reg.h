@@ -222,14 +222,20 @@ static const uint16_t ATM90E36_REGISTER_IRMSBLSB = 0xEE;    // Lower Word (B RMS
 static const uint16_t ATM90E36_REGISTER_IRMSCLSB = 0xEF;    // Lower Word (C RMS Current)
 
 /* THD, FREQUENCY, ANGLE & TEMPTEMP REGISTERS*/
-static const uint16_t ATM90E36_REGISTER_UPEAKA = 0xF1;   // A Voltage Peak
-static const uint16_t ATM90E36_REGISTER_UPEAKB = 0xF2;   // B Voltage Peak
-static const uint16_t ATM90E36_REGISTER_UPEAKC = 0xF3;   // C Voltage Peak
+static const uint16_t ATM90E36_REGISTER_THDNUA = 0xF1;  // Phase A Voltage THD
+static const uint16_t ATM90E36_REGISTER_THDNUB = 0xF2;  // Phase B Voltage THD
+static const uint16_t ATM90E36_REGISTER_THDNUC = 0xF3;  // Phase C Voltage THD
+static const uint16_t ATM90E36_REGISTER_THDNIA = 0xF5;  // Phase A Current THD
+static const uint16_t ATM90E36_REGISTER_THDNIB = 0xF6;  // Phase B Current THD
+static const uint16_t ATM90E36_REGISTER_THDNIC = 0xF7;  // Phase C Current THD
+//static const uint16_t ATM90E36_REGISTER_UPEAKA = 0xF1;   // A Voltage Peak
+//static const uint16_t ATM90E36_REGISTER_UPEAKB = 0xF2;   // B Voltage Peak
+//static const uint16_t ATM90E36_REGISTER_UPEAKC = 0xF3;   // C Voltage Peak
 //////////////// 0xF4	    // Reserved Register	
-static const uint16_t ATM90E36_REGISTER_IPEAK = 0xF5;    // Peak Current Reg Base
-static const uint16_t ATM90E36_REGISTER_IPEAKA = 0xF5;   // A Current Peak
-static const uint16_t ATM90E36_REGISTER_IPEAKB = 0xF6;   // B Current Peak
-static const uint16_t ATM90E36_REGISTER_IPEAKC = 0xF7;   // C Current Peak
+//static const uint16_t ATM90E36_REGISTER_IPEAK = 0xF5;    // Peak Current Reg Base
+//static const uint16_t ATM90E36_REGISTER_IPEAKA = 0xF5;   // A Current Peak
+//static const uint16_t ATM90E36_REGISTER_IPEAKB = 0xF6;   // B Current Peak
+//static const uint16_t ATM90E36_REGISTER_IPEAKC = 0xF7;   // C Current Peak
 static const uint16_t ATM90E36_REGISTER_FREQ = 0xF8;     // Frequency
 static const uint16_t ATM90E36_REGISTER_PANGLE = 0xF9;   // Mean Phase Angle Reg Base
 static const uint16_t ATM90E36_REGISTER_PANGLEA = 0xF9;  // A Mean Phase Angle

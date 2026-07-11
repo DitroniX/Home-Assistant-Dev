@@ -43,8 +43,8 @@ void ATM90E36Component::loop() {
       if (this->phase_[phase].harmonic_active_power_sensor_ != nullptr)
         this->phase_[phase].harmonic_active_power_ = this->get_phase_harmonic_active_power_(phase);
 
-      if (this->phase_[phase].peak_current_sensor_ != nullptr)
-        this->phase_[phase].peak_current_ = this->get_phase_peak_current_(phase);
+//      if (this->phase_[phase].peak_current_sensor_ != nullptr)
+//        this->phase_[phase].peak_current_ = this->get_phase_peak_current_(phase);
 
       // After the local store is collected we can publish them trusting they are within +-1 hardware sampling
       if (this->phase_[phase].voltage_sensor_ != nullptr)
@@ -83,9 +83,29 @@ void ATM90E36Component::loop() {
             this->get_local_phase_harmonic_active_power_(phase));
       }
 
-      if (this->phase_[phase].peak_current_sensor_ != nullptr)
-        this->phase_[phase].peak_current_sensor_->publish_state(this->get_local_phase_peak_current_(phase));
+//      if (this->phase_[phase].peak_current_sensor_ != nullptr)
+//        this->phase_[phase].peak_current_sensor_->publish_state(this->get_local_phase_peak_current_(phase));
     }
+    // THD values
+    if (this->thd_voltage_a_sensor_ != nullptr) {
+      this->thd_voltage_a_sensor_->publish_state(this->get_thd_voltage_a());
+    }
+    if (this->thd_current_a_sensor_ != nullptr) {
+      this->thd_current_a_sensor_->publish_state(this->get_thd_current_a());
+    }
+    if (this->thd_voltage_b_sensor_ != nullptr) {
+      this->thd_voltage_b_sensor_->publish_state(this->get_thd_voltage_b());
+    }
+    if (this->thd_current_b_sensor_ != nullptr) {
+      this->thd_current_b_sensor_->publish_state(this->get_thd_current_b());
+    }
+    if (this->thd_voltage_c_sensor_ != nullptr) {
+      this->thd_voltage_c_sensor_->publish_state(this->get_thd_voltage_c());
+    }
+    if (this->thd_current_c_sensor_ != nullptr) {
+      this->thd_current_c_sensor_->publish_state(this->get_thd_current_c());
+    }
+
     if (this->freq_sensor_ != nullptr)
       this->freq_sensor_->publish_state(this->get_frequency_());
 
@@ -214,14 +234,18 @@ void ATM90E36Component::dump_config() {
   LOG_SENSOR("  ", "Reactive Power A", this->phase_[PHASEA].reactive_power_sensor_);
   LOG_SENSOR("  ", "Apparent Power A", this->phase_[PHASEA].apparent_power_sensor_);
   LOG_SENSOR("  ", "PF A", this->phase_[PHASEA].power_factor_sensor_);
+  LOG_SENSOR("  ", "THD Voltage A", this->thd_voltage_a_sensor_);
+  LOG_SENSOR("  ", "THD Current A", this->thd_current_a_sensor_);
   LOG_SENSOR("  ", "Active Forward Energy A", this->phase_[PHASEA].forward_active_energy_sensor_);
   LOG_SENSOR("  ", "Active Reverse Energy A", this->phase_[PHASEA].reverse_active_energy_sensor_);
   LOG_SENSOR("  ", "Harmonic Power A", this->phase_[PHASEA].harmonic_active_power_sensor_);
   LOG_SENSOR("  ", "Phase Angle A", this->phase_[PHASEA].phase_angle_sensor_);
-  LOG_SENSOR("  ", "Peak Current A", this->phase_[PHASEA].peak_current_sensor_);
+//  LOG_SENSOR("  ", "Peak Current A", this->phase_[PHASEA].peak_current_sensor_);
   LOG_SENSOR("  ", "Voltage B", this->phase_[PHASEB].voltage_sensor_);
   LOG_SENSOR("  ", "Current B", this->phase_[PHASEB].current_sensor_);
   LOG_SENSOR("  ", "Power B", this->phase_[PHASEB].power_sensor_);
+  LOG_SENSOR("  ", "THD Voltage B", this->thd_voltage_b_sensor_);
+  LOG_SENSOR("  ", "THD Current B", this->thd_current_b_sensor_);
   LOG_SENSOR("  ", "Reactive Power B", this->phase_[PHASEB].reactive_power_sensor_);
   LOG_SENSOR("  ", "Apparent Power B", this->phase_[PHASEB].apparent_power_sensor_);
   LOG_SENSOR("  ", "PF B", this->phase_[PHASEB].power_factor_sensor_);
@@ -229,18 +253,20 @@ void ATM90E36Component::dump_config() {
   LOG_SENSOR("  ", "Active Reverse Energy B", this->phase_[PHASEB].reverse_active_energy_sensor_);
   LOG_SENSOR("  ", "Harmonic Power B", this->phase_[PHASEB].harmonic_active_power_sensor_);
   LOG_SENSOR("  ", "Phase Angle B", this->phase_[PHASEB].phase_angle_sensor_);
-  LOG_SENSOR("  ", "Peak Current B", this->phase_[PHASEB].peak_current_sensor_);
+//  LOG_SENSOR("  ", "Peak Current B", this->phase_[PHASEB].peak_current_sensor_);
   LOG_SENSOR("  ", "Voltage C", this->phase_[PHASEC].voltage_sensor_);
   LOG_SENSOR("  ", "Current C", this->phase_[PHASEC].current_sensor_);
   LOG_SENSOR("  ", "Power C", this->phase_[PHASEC].power_sensor_);
   LOG_SENSOR("  ", "Reactive Power C", this->phase_[PHASEC].reactive_power_sensor_);
   LOG_SENSOR("  ", "Apparent Power C", this->phase_[PHASEC].apparent_power_sensor_);
   LOG_SENSOR("  ", "PF C", this->phase_[PHASEC].power_factor_sensor_);
+  LOG_SENSOR("  ", "THD Voltage C", this->thd_voltage_c_sensor_);
+  LOG_SENSOR("  ", "THD Current C", this->thd_current_c_sensor_);
   LOG_SENSOR("  ", "Active Forward Energy C", this->phase_[PHASEC].forward_active_energy_sensor_);
   LOG_SENSOR("  ", "Active Reverse Energy C", this->phase_[PHASEC].reverse_active_energy_sensor_);
   LOG_SENSOR("  ", "Harmonic Power C", this->phase_[PHASEC].harmonic_active_power_sensor_);
   LOG_SENSOR("  ", "Phase Angle C", this->phase_[PHASEC].phase_angle_sensor_);
-  LOG_SENSOR("  ", "Peak Current C", this->phase_[PHASEC].peak_current_sensor_);
+//  LOG_SENSOR("  ", "Peak Current C", this->phase_[PHASEC].peak_current_sensor_);
   LOG_SENSOR("  ", "Frequency", this->freq_sensor_);
   LOG_SENSOR("  ", "Chip Temp", this->chip_temperature_sensor_);
 }
@@ -292,6 +318,36 @@ float ATM90E36Component::get_local_phase_apparent_power_(uint8_t phase) { return
 
 float ATM90E36Component::get_local_phase_power_factor_(uint8_t phase) { return this->phase_[phase].power_factor_; }
 
+float ATM90E36Component::get_thd_voltage_a() {
+  uint16_t val = this->read16_(ATM90E36_REGISTER_THDNUA);
+  return (float)val / 100.0; // Adjust division scale based on your calibration constraints
+}
+
+float ATM90E36Component::get_thd_current_a() {
+  uint16_t val = this->read16_(ATM90E36_REGISTER_THDNIA);
+  return (float)val / 100.0;
+}
+
+float ATM90E36Component::get_thd_voltage_b() {
+  uint16_t val = this->read16_(ATM90E36_REGISTER_THDNUB);
+  return (float)val / 100.0; // Adjust division scale based on your calibration constraints
+}
+
+float ATM90E36Component::get_thd_current_b() {
+  uint16_t val = this->read16_(ATM90E36_REGISTER_THDNIB);
+  return (float)val / 100.0;
+}
+
+float ATM90E36Component::get_thd_voltage_c() {
+  uint16_t val = this->read16_(ATM90E36_REGISTER_THDNUC);
+  return (float)val / 100.0; // Adjust division scale based on your calibration constraints
+}
+
+float ATM90E36Component::get_thd_current_c() {
+  uint16_t val = this->read16_(ATM90E36_REGISTER_THDNIC);
+  return (float)val / 100.0;
+}
+
 float ATM90E36Component::get_local_phase_forward_active_energy_(uint8_t phase) {
   return this->phase_[phase].forward_active_energy_;
 }
@@ -306,7 +362,7 @@ float ATM90E36Component::get_local_phase_harmonic_active_power_(uint8_t phase) {
   return this->phase_[phase].harmonic_active_power_;
 }
 
-float ATM90E36Component::get_local_phase_peak_current_(uint8_t phase) { return this->phase_[phase].peak_current_; }
+//float ATM90E36Component::get_local_phase_peak_current_(uint8_t phase) { return this->phase_[phase].peak_current_; }
 
 float ATM90E36Component::get_phase_voltage_(uint8_t phase) {
   uint16_t voltage = this->read16_(ATM90E36_REGISTER_URMS + phase);
@@ -411,13 +467,13 @@ float ATM90E36Component::get_phase_angle_(uint8_t phase) {
   return (val > 180) ? (float) (val - 360.0f) : (float) val;
 }
 
-float ATM90E36Component::get_phase_peak_current_(uint8_t phase) {
-  int16_t val = (float) this->read16_(ATM90E36_REGISTER_IPEAK + phase);
-  if (!this->peak_current_signed_)
-    val = std::abs(val);
-  // phase register * phase current gain value  / 1000 * 2^13
-  return (val * this->phase_[phase].ct_gain_ / 8192000.0);
-}
+//float ATM90E36Component::get_phase_peak_current_(uint8_t phase) {
+//  int16_t val = (float) this->read16_(ATM90E36_REGISTER_IPEAK + phase);
+//  if (!this->peak_current_signed_)
+//    val = std::abs(val);
+//  // phase register * phase current gain value  / 1000 * 2^13
+//  return (val * this->phase_[phase].ct_gain_ / 8192000.0);
+//}
 
 float ATM90E36Component::get_frequency_() {
   const uint16_t freq = this->read16_(ATM90E36_REGISTER_FREQ);
