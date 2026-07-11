@@ -57,8 +57,6 @@ CONF_OFFSET_CURRENT = "offset_current"
 CONF_OFFSET_ACTIVE_POWER = "offset_active_power"
 CONF_OFFSET_REACTIVE_POWER = "offset_reactive_power"
 CONF_HARMONIC_POWER = "harmonic_power"
-#CONF_PEAK_CURRENT = "peak_current"
-#CONF_PEAK_CURRENT_SIGNED = "peak_current_signed"
 CONF_ENABLE_OFFSET_CALIBRATION = "enable_offset_calibration"
 CONF_ENABLE_GAIN_CALIBRATION = "enable_gain_calibration"
 CONF_PHASE_STATUS = "phase_status"
@@ -163,12 +161,6 @@ ATM90E36_PHASE_SCHEMA = cv.Schema(
             device_class=DEVICE_CLASS_POWER,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
-#        cv.Optional(CONF_PEAK_CURRENT): sensor.sensor_schema(
-#            unit_of_measurement=UNIT_AMPERE,
-#            accuracy_decimals=2,
-#            device_class=DEVICE_CLASS_CURRENT,
-#            state_class=STATE_CLASS_MEASUREMENT,
-#        ),
         cv.Optional(CONF_GAIN_VOLTAGE, default=7305): cv.uint16_t,
         cv.Optional(CONF_GAIN_CT, default=27961): cv.uint16_t,
         cv.Optional(CONF_OFFSET_VOLTAGE, default=0): cv.int_,
@@ -205,7 +197,6 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_GAIN_CURRENT, default="1X"): cv.enum(CURRENT_GAINS, upper=True),
             cv.Optional(CONF_GAIN_VOLTAGE, default="1X"): cv.enum(VOLTAGE_GAINS, upper=True),
             cv.Optional(CONF_GAIN_DPGA, default="1X"): cv.enum(DPGA_GAINS, upper=True),
-#            cv.Optional(CONF_PEAK_CURRENT_SIGNED, default=False): cv.boolean,
             cv.Optional(CONF_ENABLE_OFFSET_CALIBRATION, default=False): cv.boolean,
             cv.Optional(CONF_ENABLE_GAIN_CALIBRATION, default=False): cv.boolean,
             cv.Optional(CONF_THD_VOLTAGE_A): sensor.sensor_schema(
@@ -286,9 +277,6 @@ async def to_code(config):
         if harmonic_active_power_config := conf.get(CONF_HARMONIC_POWER):
             sens = await sensor.new_sensor(harmonic_active_power_config)
             cg.add(var.set_harmonic_active_power_sensor(i, sens))
-#        if peak_current_config := conf.get(CONF_PEAK_CURRENT):
-#            sens = await sensor.new_sensor(peak_current_config)
-#            cg.add(var.set_peak_current_sensor(i, sens))
     if frequency_config := config.get(CONF_FREQUENCY):
         sens = await sensor.new_sensor(frequency_config)
         cg.add(var.set_freq_sensor(sens))
@@ -300,7 +288,6 @@ async def to_code(config):
     cg.add(var.set_pga_current(config[CONF_GAIN_CURRENT]))
     cg.add(var.set_pga_voltage(config[CONF_GAIN_VOLTAGE]))
     cg.add(var.set_dpga_gain(config[CONF_GAIN_DPGA]))
-#    cg.add(var.set_peak_current_signed(config[CONF_PEAK_CURRENT_SIGNED]))
     if CONF_THD_VOLTAGE_A in config:
         sens = await sensor.new_sensor(config[CONF_THD_VOLTAGE_A])
         cg.add(var.set_thd_voltage_a_sensor(sens))
