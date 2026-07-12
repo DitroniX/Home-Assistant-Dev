@@ -60,12 +60,8 @@ CONF_HARMONIC_POWER = "harmonic_power"
 CONF_ENABLE_OFFSET_CALIBRATION = "enable_offset_calibration"
 CONF_ENABLE_GAIN_CALIBRATION = "enable_gain_calibration"
 CONF_PHASE_STATUS = "phase_status"
-CONF_THD_VOLTAGE_A = "thd_voltage_a"
-CONF_THD_CURRENT_A = "thd_current_a"
-CONF_THD_VOLTAGE_B = "thd_voltage_b"
-CONF_THD_CURRENT_B = "thd_current_b"
-CONF_THD_VOLTAGE_C = "thd_voltage_c"
-CONF_THD_CURRENT_C = "thd_current_c"
+CONF_THD_VOLTAGE = "thd_voltage"
+CONF_THD_CURRENT = "thd_current"
 CONF_FREQUENCY_STATUS = "frequency_status"
 UNIT_DEG = "degrees"
 LINE_FREQS = {
@@ -161,6 +157,16 @@ ATM90E36_PHASE_SCHEMA = cv.Schema(
             device_class=DEVICE_CLASS_POWER,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
+        cv.Optional(CONF_THD_VOLTAGE): sensor.sensor_schema(
+            unit_of_measurement=UNIT_PERCENT,
+            icon="mdi:sine-wave",
+            accuracy_decimals=2,
+        ),
+        cv.Optional(CONF_THD_CURRENT): sensor.sensor_schema(
+            unit_of_measurement=UNIT_PERCENT,
+            icon="mdi:sine-wave",
+            accuracy_decimals=2,
+        ),
         cv.Optional(CONF_GAIN_VOLTAGE, default=7305): cv.uint16_t,
         cv.Optional(CONF_GAIN_CT, default=27961): cv.uint16_t,
         cv.Optional(CONF_OFFSET_VOLTAGE, default=0): cv.int_,
@@ -199,36 +205,6 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_GAIN_DPGA, default="1X"): cv.enum(DPGA_GAINS, upper=True),
             cv.Optional(CONF_ENABLE_OFFSET_CALIBRATION, default=False): cv.boolean,
             cv.Optional(CONF_ENABLE_GAIN_CALIBRATION, default=False): cv.boolean,
-            cv.Optional(CONF_THD_VOLTAGE_A): sensor.sensor_schema(
-                unit_of_measurement=UNIT_PERCENT,
-                icon="mdi:sine-wave",
-                accuracy_decimals=2,
-            ),
-            cv.Optional(CONF_THD_CURRENT_A): sensor.sensor_schema(
-                unit_of_measurement=UNIT_PERCENT,
-                icon="mdi:sine-wave",
-               accuracy_decimals=2,
-            ),
-            cv.Optional(CONF_THD_VOLTAGE_B): sensor.sensor_schema(
-                unit_of_measurement=UNIT_PERCENT,
-                icon="mdi:sine-wave",
-                accuracy_decimals=2,
-            ),
-            cv.Optional(CONF_THD_CURRENT_B): sensor.sensor_schema(
-                unit_of_measurement=UNIT_PERCENT,
-                icon="mdi:sine-wave",
-               accuracy_decimals=2,
-            ),
-            cv.Optional(CONF_THD_VOLTAGE_C): sensor.sensor_schema(
-                unit_of_measurement=UNIT_PERCENT,
-                icon="mdi:sine-wave",
-                accuracy_decimals=2,
-            ),
-            cv.Optional(CONF_THD_CURRENT_C): sensor.sensor_schema(
-                unit_of_measurement=UNIT_PERCENT,
-                icon="mdi:sine-wave",
-               accuracy_decimals=2,
-            ),
         }
     )
     .extend(cv.polling_component_schema("60s"))
@@ -277,6 +253,12 @@ async def to_code(config):
         if harmonic_active_power_config := conf.get(CONF_HARMONIC_POWER):
             sens = await sensor.new_sensor(harmonic_active_power_config)
             cg.add(var.set_harmonic_active_power_sensor(i, sens))
+        if thd_voltage_config := conf.get(CONF_THD_VOLTAGE):
+            sens = await sensor.new_sensor(thd_voltage_config)
+            cg.add(var.set_thd_voltage_sensor(i, sens))
+        if thd_current_config := conf.get(CONF_THD_CURRENT):
+            sens = await sensor.new_sensor(thd_current_config)
+            cg.add(var.set_thd_current_sensor(i, sens))
     if frequency_config := config.get(CONF_FREQUENCY):
         sens = await sensor.new_sensor(frequency_config)
         cg.add(var.set_freq_sensor(sens))
@@ -288,21 +270,3 @@ async def to_code(config):
     cg.add(var.set_pga_current(config[CONF_GAIN_CURRENT]))
     cg.add(var.set_pga_voltage(config[CONF_GAIN_VOLTAGE]))
     cg.add(var.set_dpga_gain(config[CONF_GAIN_DPGA]))
-    if CONF_THD_VOLTAGE_A in config:
-        sens = await sensor.new_sensor(config[CONF_THD_VOLTAGE_A])
-        cg.add(var.set_thd_voltage_a_sensor(sens))
-    if CONF_THD_CURRENT_A in config:
-        sens = await sensor.new_sensor(config[CONF_THD_CURRENT_A])
-        cg.add(var.set_thd_current_a_sensor(sens))
-    if CONF_THD_VOLTAGE_B in config:
-        sens = await sensor.new_sensor(config[CONF_THD_VOLTAGE_B])
-        cg.add(var.set_thd_voltage_b_sensor(sens))
-    if CONF_THD_CURRENT_B in config:
-        sens = await sensor.new_sensor(config[CONF_THD_CURRENT_B])
-        cg.add(var.set_thd_current_b_sensor(sens))
-    if CONF_THD_VOLTAGE_C in config:
-        sens = await sensor.new_sensor(config[CONF_THD_VOLTAGE_C])
-        cg.add(var.set_thd_voltage_c_sensor(sens))
-    if CONF_THD_CURRENT_C in config:
-        sens = await sensor.new_sensor(config[CONF_THD_CURRENT_C])
-        cg.add(var.set_thd_current_c_sensor(sens))

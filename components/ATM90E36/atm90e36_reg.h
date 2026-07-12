@@ -222,9 +222,11 @@ static const uint16_t ATM90E36_REGISTER_IRMSBLSB = 0xEE;    // Lower Word (B RMS
 static const uint16_t ATM90E36_REGISTER_IRMSCLSB = 0xEF;    // Lower Word (C RMS Current)
 
 /* THD, FREQUENCY, ANGLE & TEMPTEMP REGISTERS*/
+static const uint16_t ATM90E36_REGISTER_THDNU = 0xF1;  // Phase A Voltage THD
 static const uint16_t ATM90E36_REGISTER_THDNUA = 0xF1;  // Phase A Voltage THD
 static const uint16_t ATM90E36_REGISTER_THDNUB = 0xF2;  // Phase B Voltage THD
 static const uint16_t ATM90E36_REGISTER_THDNUC = 0xF3;  // Phase C Voltage THD
+static const uint16_t ATM90E36_REGISTER_THDNI = 0xF5;  // Phase A Current THD
 static const uint16_t ATM90E36_REGISTER_THDNIA = 0xF5;  // Phase A Current THD
 static const uint16_t ATM90E36_REGISTER_THDNIB = 0xF6;  // Phase B Current THD
 static const uint16_t ATM90E36_REGISTER_THDNIC = 0xF7;  // Phase C Current THD
