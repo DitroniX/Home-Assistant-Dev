@@ -1,6 +1,6 @@
-# PEM SIX ESPHome Firmware
+# IPEM SIX ESPHome Firmware
 
-## Release Notes – v1.00.05 → v1.02.10
+## Release Notes – v1.00.05 → v1.02.10 (July 31st 2026)
 
 This development phase focused on transforming the firmware from a single-phase energy monitor into the foundation for a configurable **single-phase, split-phase and three-phase** power monitoring platform, while significantly improving diagnostics, commissioning and long-term monitoring.
 
