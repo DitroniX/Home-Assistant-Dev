@@ -1,10 +1,14 @@
 # =============================================================================
 # IPEM SIX Firmware v1.02.10
-# Planned for this phase of updates:
+#
+# Published from baseline IPEM SIX Firmware v1.00.05
+#
+# Planned for this phase 2 of updates:
 #  - Multi-phases_inputs configuration logic
 #  - Voltage Input 1 / 2 / 3
 #  - Electrical System diagnostics
 #  - CT routing diagnostics
+#  - Min and Max Power Totals
 # =============================================================================
 
 # Dave Williams, DitroniX 2019-2026 (ditronix.net)
@@ -61,7 +65,7 @@ esp32:
 
 api:
   encryption:
-    key: "wL8brpkPajcBD7I4QBnMFeOr1YKXt6yaKVdblPPulmw="
+    key: "xxxx"
 
 ota:
   - platform: esphome
@@ -72,7 +76,7 @@ wifi:
 
   ap:
     ssid: IPEM SIX C5 Fallback Hotspot
-    password: "mkKRW1dsMcff"
+    password: "xxxx"
 
 ################################## SUBSTITUTIONS ##################################
 substitutions:
