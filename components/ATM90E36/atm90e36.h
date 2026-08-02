@@ -19,7 +19,7 @@ class ATM90E36Component : public PollingComponent,
   static const uint8_t PHASEA = 0;
   static const uint8_t PHASEB = 1;
   static const uint8_t PHASEC = 2;
-  const char *phase_labels[3] = {"A", "B", "C"};  
+  const char *phase_labels[3] = {"A", "B", "C"};
   void loop() override;
   void setup() override;
   void dump_config() override;
@@ -30,6 +30,8 @@ class ATM90E36Component : public PollingComponent,
   void set_power_sensor(int phase, sensor::Sensor *obj) { this->phase_[phase].power_sensor_ = obj; }
   void set_reactive_power_sensor(int phase, sensor::Sensor *obj) { this->phase_[phase].reactive_power_sensor_ = obj; }
   void set_apparent_power_sensor(int phase, sensor::Sensor *obj) { this->phase_[phase].apparent_power_sensor_ = obj; }
+  void set_thd_voltage_sensor(int phase, sensor::Sensor *obj) { this->phase_[phase].thd_voltage_sensor_ = obj; }
+  void set_thd_current_sensor(int phase, sensor::Sensor *obj) { this->phase_[phase].thd_current_sensor_ = obj; }
   void set_forward_active_energy_sensor(int phase, sensor::Sensor *obj) {
     this->phase_[phase].forward_active_energy_sensor_ = obj;
   }
@@ -41,7 +43,6 @@ class ATM90E36Component : public PollingComponent,
   void set_harmonic_active_power_sensor(int phase, sensor::Sensor *obj) {
     this->phase_[phase].harmonic_active_power_sensor_ = obj;
   }
-  void set_peak_current_sensor(int phase, sensor::Sensor *obj) { this->phase_[phase].peak_current_sensor_ = obj; }
   void set_volt_gain(int phase, uint16_t gain) {
     this->phase_[phase].voltage_gain_ = gain;
   }
@@ -49,7 +50,6 @@ class ATM90E36Component : public PollingComponent,
     this->phase_[phase].ct_gain_ = gain;
   }
   void set_freq_sensor(sensor::Sensor *freq_sensor) { freq_sensor_ = freq_sensor; }
-  void set_peak_current_signed(bool flag) { peak_current_signed_ = flag; }
   void set_chip_temperature_sensor(sensor::Sensor *chip_temperature_sensor) {
     chip_temperature_sensor_ = chip_temperature_sensor;
   }
@@ -106,7 +106,8 @@ class ATM90E36Component : public PollingComponent,
   float get_local_phase_reverse_active_energy_(uint8_t phase);
   float get_local_phase_angle_(uint8_t phase);
   float get_local_phase_harmonic_active_power_(uint8_t phase);
-  float get_local_phase_peak_current_(uint8_t phase);
+  float get_local_phase_thd_voltage_(uint8_t phase);
+  float get_local_phase_thd_current_(uint8_t phase);
   float get_phase_voltage_(uint8_t phase);
   float get_phase_voltage_avg_(uint8_t phase);
   float get_phase_current_(uint8_t phase);
@@ -119,7 +120,6 @@ class ATM90E36Component : public PollingComponent,
   float get_phase_reverse_active_energy_(uint8_t phase);
   float get_phase_angle_(uint8_t phase);
   float get_phase_harmonic_active_power_(uint8_t phase);
-  float get_phase_peak_current_(uint8_t phase);
   float get_frequency_();
   float get_chip_temperature_();
   bool get_publish_interval_flag_() { return publish_interval_flag_; };
@@ -154,7 +154,6 @@ class ATM90E36Component : public PollingComponent,
     float reverse_active_energy_{0};
     float phase_angle_{0};
     float harmonic_active_power_{0};
-    float peak_current_{0};
     sensor::Sensor *voltage_sensor_{nullptr};
     sensor::Sensor *current_sensor_{nullptr};
     sensor::Sensor *power_sensor_{nullptr};
@@ -165,11 +164,12 @@ class ATM90E36Component : public PollingComponent,
     sensor::Sensor *reverse_active_energy_sensor_{nullptr};
     sensor::Sensor *phase_angle_sensor_{nullptr};
     sensor::Sensor *harmonic_active_power_sensor_{nullptr};
-    sensor::Sensor *peak_current_sensor_{nullptr};
+    sensor::Sensor *thd_voltage_sensor_{nullptr};
+    sensor::Sensor *thd_current_sensor_{nullptr};
     uint32_t cumulative_forward_active_energy_{0};
     uint32_t cumulative_reverse_active_energy_{0};
   } phase_[3];
-  
+
 	union SysStatus0 {
 		uint16_t data;
 		struct {
@@ -191,7 +191,7 @@ class ATM90E36Component : public PollingComponent,
 			bool b15 : 1;
 		} bits;
 	};
-	
+
 	union SysStatus1 {
 		uint16_t data;
 		struct {
@@ -231,7 +231,6 @@ class ATM90E36Component : public PollingComponent,
   int line_freq_{60};
   int current_phases_{3};
   bool publish_interval_flag_{false};
-  bool peak_current_signed_{false};
   uint16_t pga_cal{0x0};
 };
 

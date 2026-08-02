@@ -27,6 +27,7 @@ from esphome.const import (
     DEVICE_CLASS_VOLTAGE,
     ENTITY_CATEGORY_DIAGNOSTIC,
     ICON_CURRENT_AC,
+    ICON_FLASH,
     ICON_LIGHTBULB,
     STATE_CLASS_MEASUREMENT,
     STATE_CLASS_TOTAL_INCREASING,
@@ -34,6 +35,7 @@ from esphome.const import (
     UNIT_CELSIUS,
     UNIT_DEGREES,
     UNIT_HERTZ,
+    UNIT_PERCENT,
     UNIT_VOLT,
     UNIT_VOLT_AMPS,
     UNIT_VOLT_AMPS_REACTIVE,
@@ -55,11 +57,11 @@ CONF_OFFSET_CURRENT = "offset_current"
 CONF_OFFSET_ACTIVE_POWER = "offset_active_power"
 CONF_OFFSET_REACTIVE_POWER = "offset_reactive_power"
 CONF_HARMONIC_POWER = "harmonic_power"
-CONF_PEAK_CURRENT = "peak_current"
-CONF_PEAK_CURRENT_SIGNED = "peak_current_signed"
 CONF_ENABLE_OFFSET_CALIBRATION = "enable_offset_calibration"
 CONF_ENABLE_GAIN_CALIBRATION = "enable_gain_calibration"
 CONF_PHASE_STATUS = "phase_status"
+CONF_THD_VOLTAGE = "thd_voltage"
+CONF_THD_CURRENT = "thd_current"
 CONF_FREQUENCY_STATUS = "frequency_status"
 UNIT_DEG = "degrees"
 LINE_FREQS = {
@@ -155,11 +157,15 @@ ATM90E36_PHASE_SCHEMA = cv.Schema(
             device_class=DEVICE_CLASS_POWER,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
-        cv.Optional(CONF_PEAK_CURRENT): sensor.sensor_schema(
-            unit_of_measurement=UNIT_AMPERE,
+        cv.Optional(CONF_THD_VOLTAGE): sensor.sensor_schema(
+            unit_of_measurement=UNIT_PERCENT,
+            icon="mdi:sine-wave",
             accuracy_decimals=2,
-            device_class=DEVICE_CLASS_CURRENT,
-            state_class=STATE_CLASS_MEASUREMENT,
+        ),
+        cv.Optional(CONF_THD_CURRENT): sensor.sensor_schema(
+            unit_of_measurement=UNIT_PERCENT,
+            icon="mdi:sine-wave",
+            accuracy_decimals=2,
         ),
         cv.Optional(CONF_GAIN_VOLTAGE, default=7305): cv.uint16_t,
         cv.Optional(CONF_GAIN_CT, default=27961): cv.uint16_t,
@@ -197,7 +203,6 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_GAIN_CURRENT, default="1X"): cv.enum(CURRENT_GAINS, upper=True),
             cv.Optional(CONF_GAIN_VOLTAGE, default="1X"): cv.enum(VOLTAGE_GAINS, upper=True),
             cv.Optional(CONF_GAIN_DPGA, default="1X"): cv.enum(DPGA_GAINS, upper=True),
-            cv.Optional(CONF_PEAK_CURRENT_SIGNED, default=False): cv.boolean,
             cv.Optional(CONF_ENABLE_OFFSET_CALIBRATION, default=False): cv.boolean,
             cv.Optional(CONF_ENABLE_GAIN_CALIBRATION, default=False): cv.boolean,
         }
@@ -248,9 +253,12 @@ async def to_code(config):
         if harmonic_active_power_config := conf.get(CONF_HARMONIC_POWER):
             sens = await sensor.new_sensor(harmonic_active_power_config)
             cg.add(var.set_harmonic_active_power_sensor(i, sens))
-        if peak_current_config := conf.get(CONF_PEAK_CURRENT):
-            sens = await sensor.new_sensor(peak_current_config)
-            cg.add(var.set_peak_current_sensor(i, sens))
+        if thd_voltage_config := conf.get(CONF_THD_VOLTAGE):
+            sens = await sensor.new_sensor(thd_voltage_config)
+            cg.add(var.set_thd_voltage_sensor(i, sens))
+        if thd_current_config := conf.get(CONF_THD_CURRENT):
+            sens = await sensor.new_sensor(thd_current_config)
+            cg.add(var.set_thd_current_sensor(i, sens))
     if frequency_config := config.get(CONF_FREQUENCY):
         sens = await sensor.new_sensor(frequency_config)
         cg.add(var.set_freq_sensor(sens))
@@ -262,4 +270,3 @@ async def to_code(config):
     cg.add(var.set_pga_current(config[CONF_GAIN_CURRENT]))
     cg.add(var.set_pga_voltage(config[CONF_GAIN_VOLTAGE]))
     cg.add(var.set_dpga_gain(config[CONF_GAIN_DPGA]))
-    cg.add(var.set_peak_current_signed(config[CONF_PEAK_CURRENT_SIGNED]))
