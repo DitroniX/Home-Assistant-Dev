@@ -12,9 +12,11 @@ CONFIG_SCHEMA = cv.Schema({
 
 async def to_code(config):
     var = await cg.get_variable(config["id"])
+
     if item := config.get("phase_status"):
         sens = await text_sensor.new_text_sensor(item)
         cg.add(var.set_phase_status_text_sensor(sens))
+
     if item := config.get("frequency_status"):
         sens = await text_sensor.new_text_sensor(item)
         cg.add(var.set_freq_status_text_sensor(sens))

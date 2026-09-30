@@ -1,9 +1,12 @@
 #pragma once
+#include <array>
 #include <cinttypes>
 #include <string>
+
 #include "atm90e36_reg.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/spi/spi.h"
+#include "esphome/components/text_sensor/text_sensor.h"
 #include "esphome/core/component.h"
 
 namespace esphome {
@@ -42,6 +45,10 @@ class ATM90E36Component : public PollingComponent,
 
   void set_freq_sensor(sensor::Sensor *s) { freq_sensor_ = s; }
   void set_chip_temperature_sensor(sensor::Sensor *s) { chip_temperature_sensor_ = s; }
+
+  void set_phase_status_text_sensor(text_sensor::TextSensor *s) { phase_status_sensor_ = s; }
+  void set_freq_status_text_sensor(text_sensor::TextSensor *s) { frequency_status_sensor_ = s; }
+
   void set_line_freq(int f) { line_freq_ = f; }
   void set_current_phases(int p) { current_phases_ = p; }
   void set_pga_current(uint16_t g) { pga_current_ = g; }
@@ -53,17 +60,6 @@ class ATM90E36Component : public PollingComponent,
   struct Phase {
     uint16_t voltage_gain_{0};
     uint16_t ct_gain_{0};
-    float voltage_{0};
-    float current_{0};
-    float active_power_{0};
-    float reactive_power_{0};
-    float apparent_power_{0};
-    float power_factor_{0};
-    float forward_active_energy_{0};
-    float reverse_active_energy_{0};
-    float phase_angle_{0};
-    float harmonic_active_power_{0};
-    float peak_current_{0};
     sensor::Sensor *voltage_sensor_{nullptr};
     sensor::Sensor *current_sensor_{nullptr};
     sensor::Sensor *power_sensor_{nullptr};
@@ -79,8 +75,11 @@ class ATM90E36Component : public PollingComponent,
     uint32_t cumulative_reverse_active_energy_{0};
   } phase_[3];
 
+  std::array<uint8_t, 3> spi_data_{};
+
   uint16_t read16_(uint16_t reg);
   void write16_(uint16_t reg, uint16_t val, bool validate = true);
+
   float get_phase_voltage_(uint8_t p);
   float get_phase_current_(uint8_t p);
   float get_phase_active_power_(uint8_t p);
@@ -95,14 +94,18 @@ class ATM90E36Component : public PollingComponent,
   float get_neutral_current_();
   float get_frequency_();
   float get_chip_temperature_();
+
   bool validate_spi_read_(uint16_t expected, const char *context = nullptr);
+  void update_status_text_();
 
   sensor::Sensor *neutral_current_sensor_{nullptr};
-  uint16_t neutral_ct_gain_{27961};
-  int16_t neutral_current_offset_{0};
   sensor::Sensor *freq_sensor_{nullptr};
   sensor::Sensor *chip_temperature_sensor_{nullptr};
+  text_sensor::TextSensor *phase_status_sensor_{nullptr};
+  text_sensor::TextSensor *frequency_status_sensor_{nullptr};
 
+  uint16_t neutral_ct_gain_{27961};
+  int16_t neutral_current_offset_{0};
   uint16_t pga_current_{0x15};
   uint16_t pga_voltage_{0x15};
   uint16_t dpga_gain_{0x2};

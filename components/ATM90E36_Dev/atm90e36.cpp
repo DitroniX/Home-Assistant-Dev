@@ -1,6 +1,5 @@
 #include "atm90e36.h"
 #include <cmath>
-#include <numbers>
 #include "esphome/core/log.h"
 
 namespace esphome {
@@ -28,13 +27,16 @@ void ATM90E36Component::loop() {
 
   if (neutral_current_sensor_)
     neutral_current_sensor_->publish_state(get_neutral_current_());
-  if (freq_sensor_) freq_sensor_->publish_state(get_frequency_());
-  if (chip_temperature_sensor_) chip_temperature_sensor_->publish_state(get_chip_temperature_());
+  if (freq_sensor_)
+    freq_sensor_->publish_state(get_frequency_());
+  if (chip_temperature_sensor_)
+    chip_temperature_sensor_->publish_state(get_chip_temperature_());
+
+  update_status_text_();
 }
 
 void ATM90E36Component::update() {
   publish_interval_flag_ = true;
-  status_clear_warning();
 }
 
 void ATM90E36Component::setup() {
@@ -82,7 +84,7 @@ void ATM90E36Component::setup() {
   write16_(ATM90E36_REGISTER_UOFFSETC, 0);
   write16_(ATM90E36_REGISTER_IOFFSETC, 0);
 
-  // I4 / Neutral channel
+  // I4 / Neutral
   write16_(ATM90E36_REGISTER_IGAINN, neutral_ct_gain_);
   write16_(ATM90E36_REGISTER_IOFFSETN, static_cast<uint16_t>(neutral_current_offset_));
 
@@ -96,26 +98,37 @@ void ATM90E36Component::dump_config() {
   LOG_SENSOR("  ", "Neutral Current", neutral_current_sensor_);
   LOG_SENSOR("  ", "Frequency", freq_sensor_);
   LOG_SENSOR("  ", "Chip Temperature", chip_temperature_sensor_);
+  LOG_TEXT_SENSOR("  ", "Phase Status", phase_status_sensor_);
+  LOG_TEXT_SENSOR("  ", "Frequency Status", frequency_status_sensor_);
 }
 
 uint16_t ATM90E36Component::read16_(uint16_t reg) {
-  uint8_t tx[2] = {static_cast<uint8_t>(reg & 0xFF), 0};
-  uint8_t rx[2] = {0, 0};
+  std::array<uint8_t, 3> data = {
+      static_cast<uint8_t>(reg & 0x7F),
+      0x00,
+      0x00
+  };
+
   enable();
-  transfer_array(rx, tx, 2);
+  transfer_array(data);
   disable();
-  return (static_cast<uint16_t>(rx[0]) << 8) | rx[1];
+
+  return (static_cast<uint16_t>(data[1]) << 8) | data[2];
 }
 
 void ATM90E36Component::write16_(uint16_t reg, uint16_t val, bool validate) {
-  uint8_t tx[3] = {
+  std::array<uint8_t, 3> data = {
       static_cast<uint8_t>(reg | 0x80),
       static_cast<uint8_t>(val >> 8),
-      static_cast<uint8_t>(val & 0xFF)};
+      static_cast<uint8_t>(val & 0xFF)
+  };
+
   enable();
-  write_array(tx, sizeof(tx));
+  transfer_array(data);
   disable();
-  if (validate) validate_spi_read_(val, "write16_");
+
+  if (validate)
+    validate_spi_read_(val, "write16_");
 }
 
 float ATM90E36Component::get_phase_voltage_(uint8_t p) {
@@ -173,9 +186,7 @@ float ATM90E36Component::get_phase_peak_current_(uint8_t p) {
 }
 
 float ATM90E36Component::get_neutral_current_() {
-  const uint16_t raw = read16_(ATM90E36_REGISTER_IRMSN);
-  validate_spi_read_(raw, "get_neutral_current_()");
-  return raw / 1000.0f;
+  return read16_(ATM90E36_REGISTER_IRMSN) / 1000.0f;
 }
 
 float ATM90E36Component::get_frequency_() {
@@ -186,13 +197,41 @@ float ATM90E36Component::get_chip_temperature_() {
   return static_cast<int16_t>(read16_(ATM90E36_REGISTER_TEMP));
 }
 
+void ATM90E36Component::update_status_text_() {
+  if (phase_status_sensor_) {
+    float a = get_phase_voltage_(0);
+    float b = get_phase_voltage_(1);
+    float c = get_phase_voltage_(2);
+
+    if (a < 100.0f && b < 100.0f && c < 100.0f)
+      phase_status_sensor_->publish_state("Voltage Fault");
+    else if (a < 200.0f || b < 200.0f || c < 200.0f)
+      phase_status_sensor_->publish_state("Voltage Warning");
+    else
+      phase_status_sensor_->publish_state("Healthy");
+  }
+
+  if (frequency_status_sensor_) {
+    float f = get_frequency_();
+
+    if (f < 45.0f || f > 55.0f)
+      frequency_status_sensor_->publish_state("Frequency Fault");
+    else if (f < 49.0f || f > 51.0f)
+      frequency_status_sensor_->publish_state("Frequency Warning");
+    else
+      frequency_status_sensor_->publish_state("Healthy");
+  }
+}
+
 bool ATM90E36Component::validate_spi_read_(uint16_t expected, const char *context) {
   uint16_t last = read16_(ATM90E36_REGISTER_LASTSPIDATA);
+
   if (last != expected) {
     ESP_LOGW(TAG, "[%s] SPI read mismatch: expected 0x%04X, got 0x%04X",
              context ? context : "SPI", expected, last);
     return false;
   }
+
   return true;
 }
 

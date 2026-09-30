@@ -31,8 +31,6 @@ CONF_OFFSET_REACTIVE_POWER = "offset_reactive_power"
 CONF_HARMONIC_POWER = "harmonic_power"
 CONF_PEAK_CURRENT = "peak_current"
 CONF_PEAK_CURRENT_SIGNED = "peak_current_signed"
-CONF_PHASE_STATUS = "phase_status"
-CONF_FREQUENCY_STATUS = "frequency_status"
 
 LINE_FREQS = {"50HZ": 50, "60HZ": 60}
 CURRENT_PHASES = {"2": 2, "3": 3}
@@ -40,9 +38,7 @@ CURRENT_GAINS = {"1X": 0x0, "2X": 0x15, "4X": 0x2A}
 VOLTAGE_GAINS = {"1X": 0x0, "2X": 0x15, "4X": 0x2A}
 DPGA_GAINS = {"1X": 0x0, "2X": 0x1, "4X": 0x2, "8X": 0x3}
 
-ATM90E36Component = atm90e36_ns.class_(
-    "ATM90E36Component", cg.PollingComponent, spi.SPIDevice
-)
+ATM90E36Component = atm90e36_ns.class_("ATM90E36Component", cg.PollingComponent, spi.SPIDevice)
 
 CURRENT_SENSOR_SCHEMA = sensor.sensor_schema(
     unit_of_measurement=UNIT_AMPERE,
